@@ -64,8 +64,8 @@ export function Step2DisabilityType({ onSelectMainCategory }: Props) {
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-20 pb-6 bg-slate-50 text-slate-950 select-none overflow-hidden absolute inset-0"
+      transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-8 pb-28 bg-slate-50 text-slate-950 select-none overflow-hidden absolute inset-0"
       role="region"
       aria-label="메인 접근성 유형 선택 화면"
     >
@@ -74,7 +74,7 @@ export function Step2DisabilityType({ onSelectMainCategory }: Props) {
         {DISABILITY_TYPES.map((item) => (
           <motion.button
             whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            transition={{ type: 'spring', stiffness: 600, damping: 15 }}
             key={item.id}
             onClick={() => handleTypeSelect(item.id)}
             className="w-full flex-1 rounded-[28px] bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row items-center justify-center gap-4 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-slate-200/50 text-center px-4"

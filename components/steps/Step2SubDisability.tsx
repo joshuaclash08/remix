@@ -168,8 +168,8 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-20 pb-6 bg-slate-50 text-slate-950 select-none overflow-y-auto phone-scroll absolute inset-0"
+      transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-8 pb-28 bg-slate-50 text-slate-950 select-none overflow-y-auto phone-scroll absolute inset-0"
       role="region"
       aria-label="세부 장애 디테일 선택 화면"
     >
@@ -177,7 +177,7 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
         {options.map((opt, idx) => (
           <motion.button
             whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            transition={{ type: 'spring', stiffness: 600, damping: 15 }}
             key={idx}
             onClick={() => handleSubSelect(opt.configureFn)}
             className="w-full flex-1 px-5 rounded-[28px] bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row items-center justify-center text-center gap-4 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-slate-200/50"

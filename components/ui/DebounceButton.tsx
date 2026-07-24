@@ -50,7 +50,7 @@ export function DebounceButton({ children, onDebouncedClick, className, ...rest 
     // @ts-expect-error - Framer Motion types might conflict with React 19
     <motion.button
       whileTap={{ scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      transition={{ type: 'spring', stiffness: 600, damping: 15 }}
       onClick={handleClick}
       className={className}
       {...rest}

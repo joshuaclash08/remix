@@ -40,8 +40,8 @@ export function SimpleKiosk({ onResetToStep1 }: Props) {
       initial="initial"
       animate="animate"
       exit="exit"
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-20 pb-6 bg-slate-50 text-slate-950 select-none relative overflow-hidden absolute inset-0"
+      transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-8 pb-28 bg-slate-50 text-slate-950 select-none relative overflow-hidden absolute inset-0"
       role="region"
       aria-label="주문 선택 화면"
     >

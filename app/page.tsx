@@ -1,19 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAccessibilityStore } from '@/store/useAccessibilityStore';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { MobileDeviceContainer } from '@/components/layout/MobileDeviceContainer';
-import { FixedNavHeader } from '@/components/layout/FixedNavHeader';
 import { LoadingScreen } from '@/components/steps/LoadingScreen';
 import { Step1DisabilitySelect } from '@/components/steps/Step1DisabilitySelect';
 import { Step2DisabilityType, MainDisabilityCategory } from '@/components/steps/Step2DisabilityType';
 import { Step2SubDisability } from '@/components/steps/Step2SubDisability';
 import { SimpleKiosk } from '@/components/kiosk/SimpleKiosk';
+import { ArrowLeft } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 
 export default function KioskApp() {
   const { highContrast, fontScale, resetAll, dyslexiaMode, darkMode, colorBlindMode, setPreset } = useAccessibilityStore();
+  const { vibrate } = useHaptics();
   useReducedMotion();
 
   // Navigation Steps: 'loading' | 'step1' | 'step2_main' | 'step2_sub' | 'kiosk'
@@ -64,20 +66,14 @@ export default function KioskApp() {
     }
   };
 
-  const showHeader = currentStep !== 'loading';
   const showBack = currentStep !== 'step1' && currentStep !== 'loading';
 
   return (
     <MobileDeviceContainer>
       <div className="relative w-full min-h-screen flex-1 flex flex-col overflow-hidden bg-slate-50">
-        {/* Permanent Top Navigation Header (Never overlaps content below) */}
-        {showHeader && (
-          <FixedNavHeader showBack={showBack} onBack={handleHeaderBack} />
-        )}
-
         {/* Content Body Container */}
         <main className="flex-1 w-full flex flex-col overflow-hidden bg-slate-50 relative">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             {/* Step 0: Prototype Loading (slides up) */}
             {currentStep === 'loading' && (
               <LoadingScreen key="loading" onLoadingComplete={() => setCurrentStep('step1')} />
@@ -119,6 +115,33 @@ export default function KioskApp() {
             )}
           </AnimatePresence>
         </main>
+
+        {/* Floating Liquid Glass Back Button at the Bottom */}
+        <AnimatePresence>
+          {showBack && (
+            <motion.div
+              initial={{ opacity: 0, y: 30, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: 30, x: '-50%' }}
+              transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+              className="absolute bottom-6 left-1/2 z-40"
+            >
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: 'spring', stiffness: 600, damping: 15 }}
+                onClick={() => {
+                  vibrate(30);
+                  handleHeaderBack();
+                }}
+                className="px-6 py-4 rounded-full bg-slate-900/90 text-white backdrop-blur-lg border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.25)] hover:bg-slate-800 transition-all flex items-center gap-2 cursor-pointer"
+                aria-label="이전 화면으로 돌아가기"
+              >
+                <ArrowLeft className="w-6 h-6 stroke-[2.5]" />
+                <span className="text-lg font-bold tracking-tight">이전</span>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </MobileDeviceContainer>
   );
