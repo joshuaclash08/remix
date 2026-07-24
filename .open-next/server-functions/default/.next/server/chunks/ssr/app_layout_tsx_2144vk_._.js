@@ -1,0 +1,3 @@
+module.exports=[33290,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"ko",className:"h-full antialiased dark",children:(0,b.jsx)("body",{className:"min-h-full flex flex-col bg-slate-950 text-slate-100 selection:bg-yellow-400 selection:text-slate-950",children:a})})},"metadata",0,{title:"배리어프리 셀프오더 플랫폼 | 스마트 QR 키오스크 PWA",description:"시각, 청각, 지체 장애인 및 고령자 전용 스마트폰 셀프오더 PWA 프로토타입. GSAP 모션, Framer Motion, 고대비, 음성안내(TTS) 지원.",manifest:"/manifest.json"},"viewport",0,{width:"device-width",initialScale:1,maximumScale:1,userScalable:!1}])},70864,a=>{a.n(a.i(33290))}];
+
+//# sourceMappingURL=app_layout_tsx_2144vk_._.js.map

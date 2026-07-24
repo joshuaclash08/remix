@@ -2,8 +2,9 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useAccessibilityStore } from '@/store/useAccessibilityStore';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
-interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Props extends HTMLMotionProps<"button"> {
   children: React.ReactNode;
   onDebouncedClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
@@ -46,12 +47,15 @@ export function DebounceButton({ children, onDebouncedClick, className, ...rest 
   }, []);
 
   return (
-    <button
+    // @ts-expect-error - Framer Motion types might conflict with React 19
+    <motion.button
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       onClick={handleClick}
       className={className}
       {...rest}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }

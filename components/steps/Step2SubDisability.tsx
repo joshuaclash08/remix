@@ -156,27 +156,39 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
     onSelectSubComplete();
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex-1 w-full flex flex-col justify-center items-center p-6 py-6 bg-white text-slate-950 select-none overflow-y-auto phone-scroll"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-20 pb-6 bg-slate-50 text-slate-950 select-none overflow-y-auto phone-scroll absolute inset-0"
       role="region"
       aria-label="세부 장애 디테일 선택 화면"
     >
-      <div className="w-full flex-1 flex flex-col justify-center gap-4 max-w-sm my-auto">
+      <div className="w-full h-full flex-1 flex flex-col justify-between gap-4 max-w-md mx-auto">
         {options.map((opt, idx) => (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             key={idx}
             onClick={() => handleSubSelect(opt.configureFn)}
-            className="w-full min-h-[140px] p-5 rounded-[32px] bg-white border-4 border-slate-950 hover:bg-yellow-300 transition-all flex flex-col items-center justify-center text-center gap-2 cursor-pointer shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:ring-4 focus:ring-yellow-400"
+            className="w-full flex-1 px-5 rounded-[28px] bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row items-center justify-center text-center gap-4 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-slate-200/50"
             aria-label={`${opt.title} 맞춤 선택`}
           >
-            <div className="text-slate-950">{opt.icon}</div>
-            <span className="text-2xl font-black tracking-tight">{opt.title}</span>
-            <span className="text-sm font-bold text-slate-600 tracking-tight">{opt.desc}</span>
-          </button>
+            <div className="text-slate-700 shrink-0">{opt.icon}</div>
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
+              <span className="text-2xl font-bold tracking-tight text-slate-800">{opt.title}</span>
+              <span className="text-base font-semibold text-slate-500 tracking-tight mt-1">{opt.desc}</span>
+            </div>
+          </motion.button>
         ))}
       </div>
     </motion.div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useAccessibilityStore } from '@/store/useAccessibilityStore';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { MobileDeviceContainer } from '@/components/layout/MobileDeviceContainer';
@@ -12,7 +13,7 @@ import { Step2SubDisability } from '@/components/steps/Step2SubDisability';
 import { SimpleKiosk } from '@/components/kiosk/SimpleKiosk';
 
 export default function KioskApp() {
-  const { highContrast, fontScale, resetAll, dyslexiaMode, darkMode, colorBlindMode } = useAccessibilityStore();
+  const { highContrast, fontScale, resetAll, dyslexiaMode, darkMode, colorBlindMode, setPreset } = useAccessibilityStore();
   useReducedMotion();
 
   // Navigation Steps: 'loading' | 'step1' | 'step2_main' | 'step2_sub' | 'kiosk'
@@ -68,46 +69,55 @@ export default function KioskApp() {
 
   return (
     <MobileDeviceContainer>
-      <div className="relative w-full min-h-screen flex-1 flex flex-col overflow-hidden bg-white">
+      <div className="relative w-full min-h-screen flex-1 flex flex-col overflow-hidden bg-slate-50">
         {/* Permanent Top Navigation Header (Never overlaps content below) */}
         {showHeader && (
           <FixedNavHeader showBack={showBack} onBack={handleHeaderBack} />
         )}
 
         {/* Content Body Container */}
-        <main className="flex-1 w-full flex flex-col overflow-hidden bg-white">
-          {/* Step 0: Prototype Loading (slides up) */}
-          {currentStep === 'loading' && (
-            <LoadingScreen onLoadingComplete={() => setCurrentStep('step1')} />
-          )}
+        <main className="flex-1 w-full flex flex-col overflow-hidden bg-slate-50 relative">
+          <AnimatePresence mode="wait">
+            {/* Step 0: Prototype Loading (slides up) */}
+            {currentStep === 'loading' && (
+              <LoadingScreen key="loading" onLoadingComplete={() => setCurrentStep('step1')} />
+            )}
 
-          {/* Step 1: Disability selection */}
-          {currentStep === 'step1' && (
-            <Step1DisabilitySelect onSelectDisability={() => setCurrentStep('step2_main')} />
-          )}
+            {/* Step 1: Disability selection */}
+            {currentStep === 'step1' && (
+              <Step1DisabilitySelect key="step1" onSelectDisability={() => setCurrentStep('step2_main')} />
+            )}
 
-          {/* Step 2 Main: Disability Type selection */}
-          {currentStep === 'step2_main' && (
-            <Step2DisabilityType
-              onSelectMainCategory={(cat) => {
-                setSelectedMainCategory(cat);
-                setCurrentStep('step2_sub');
-              }}
-            />
-          )}
+            {/* Step 2 Main: Disability Type selection */}
+            {currentStep === 'step2_main' && (
+              <Step2DisabilityType
+                key="step2_main"
+                onSelectMainCategory={(cat) => {
+                  setSelectedMainCategory(cat);
+                  if (cat === 'hearing') {
+                    setPreset('hearing');
+                    setCurrentStep('kiosk');
+                  } else {
+                    setCurrentStep('step2_sub');
+                  }
+                }}
+              />
+            )}
 
-          {/* Step 2 Sub: Detailed Sub-Disability Selection */}
-          {currentStep === 'step2_sub' && (
-            <Step2SubDisability
-              mainCategory={selectedMainCategory}
-              onSelectSubComplete={() => setCurrentStep('kiosk')}
-            />
-          )}
+            {/* Step 2 Sub: Detailed Sub-Disability Selection */}
+            {currentStep === 'step2_sub' && (
+              <Step2SubDisability
+                key="step2_sub"
+                mainCategory={selectedMainCategory}
+                onSelectSubComplete={() => setCurrentStep('kiosk')}
+              />
+            )}
 
-          {/* Step 3: Customized super simple self-order kiosk */}
-          {currentStep === 'kiosk' && (
-            <SimpleKiosk onResetToStep1={() => setCurrentStep('step1')} />
-          )}
+            {/* Step 3: Customized super simple self-order kiosk */}
+            {currentStep === 'kiosk' && (
+              <SimpleKiosk key="kiosk" onResetToStep1={() => setCurrentStep('step1')} />
+            )}
+          </AnimatePresence>
         </main>
       </div>
     </MobileDeviceContainer>

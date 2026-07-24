@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useHaptics } from '@/hooks/useHaptics';
-import { Eye, Brain, Accessibility, Ear } from 'lucide-react';
+import { Eye, Brain, Accessibility, VolumeX } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export type MainDisabilityCategory = 'visual' | 'cognitive' | 'mobility' | 'hearing';
@@ -42,8 +42,8 @@ export function Step2DisabilityType({ onSelectMainCategory }: Props) {
     {
       id: 'hearing',
       title: '청각 장애',
-      icon: <Ear className="w-14 h-14 shrink-0" />,
-      ariaLabel: '청각 장애 지원 세부 선택으로 이동',
+      icon: <VolumeX className="w-14 h-14 shrink-0" />,
+      ariaLabel: '청각 장애 지원 바로가기',
     },
   ];
 
@@ -52,31 +52,41 @@ export function Step2DisabilityType({ onSelectMainCategory }: Props) {
     onSelectMainCategory(category);
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex-1 w-full flex flex-col justify-between items-center p-6 py-6 bg-white text-slate-950 select-none"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-20 pb-6 bg-slate-50 text-slate-950 select-none overflow-hidden absolute inset-0"
       role="region"
-      aria-label="메인 장애 유형 선택 화면"
+      aria-label="메인 접근성 유형 선택 화면"
     >
       {/* 4 buttons expanding (flex-1) to fill vertical height completely */}
-      <div className="w-full flex-1 flex flex-col justify-between gap-4 max-w-sm">
+      <div className="w-full h-full flex-1 flex flex-col justify-between gap-4 max-w-md mx-auto">
         {DISABILITY_TYPES.map((item) => (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             key={item.id}
             onClick={() => handleTypeSelect(item.id)}
-            className="w-full flex-1 min-h-[110px] px-6 rounded-3xl bg-white border-4 border-slate-950 hover:bg-yellow-300 transition-all flex items-center justify-center gap-5 cursor-pointer shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:ring-4 focus:ring-yellow-400 text-center"
+            className="w-full flex-1 rounded-[28px] bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row items-center justify-center gap-4 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-slate-200/50 text-center px-4"
             aria-label={item.ariaLabel}
           >
-            <div className="text-slate-950">
+            <div className="text-slate-700">
               {item.icon}
             </div>
-            <span className="text-2xl sm:text-3xl font-black tracking-tight">
+            <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
               {item.title}
             </span>
-          </button>
+          </motion.button>
         ))}
       </div>
     </motion.div>

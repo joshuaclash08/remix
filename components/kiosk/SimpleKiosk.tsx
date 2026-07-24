@@ -28,52 +28,60 @@ export function SimpleKiosk({ onResetToStep1 }: Props) {
     placeOrder();
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex-1 min-h-screen w-full flex flex-col justify-between items-center p-6 py-6 bg-white text-slate-950 select-none relative"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-20 pb-6 bg-slate-50 text-slate-950 select-none relative overflow-hidden absolute inset-0"
       role="region"
       aria-label="주문 선택 화면"
     >
       {/* Centered Menu & CTA elements group filling vertical space */}
-      <div className="w-full flex-1 flex flex-col justify-between gap-5 max-w-sm">
+      <div className="w-full h-full flex-1 flex flex-col justify-between gap-5 max-w-md mx-auto">
         <DebounceButton
           onDebouncedClick={() => handleSelectItem('coffee')}
-          className={`w-full flex-1 min-h-[140px] px-6 rounded-[36px] border-4 flex items-center justify-center gap-4 transition-all cursor-pointer shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:ring-4 focus:ring-yellow-400 text-center ${
+          className={`w-full flex-1 rounded-[32px] border flex flex-col sm:flex-row items-center justify-center gap-4 transition-all cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-yellow-500/50 text-center ${
             selectedItem === 'coffee'
-              ? 'bg-yellow-300 border-slate-950 text-slate-950 font-black'
-              : 'bg-white border-slate-950 text-slate-900'
+              ? 'bg-yellow-50 border-yellow-400 text-yellow-700 ring-2 ring-yellow-400/20'
+              : 'bg-white border-slate-200/80 hover:bg-slate-50 text-slate-700'
           }`}
           aria-label="아메리카노 선택"
           aria-pressed={selectedItem === 'coffee'}
         >
-          <span className="text-3xl sm:text-4xl font-black">☕ 아메리카노</span>
-          {selectedItem === 'coffee' && <Check className="w-10 h-10 text-slate-950 stroke-[3] shrink-0" />}
+          <span className={`text-3xl sm:text-4xl font-bold ${selectedItem === 'coffee' ? 'text-yellow-700' : 'text-slate-800'}`}>☕ 아메리카노</span>
+          {selectedItem === 'coffee' && <Check className="w-10 h-10 text-yellow-600 stroke-[3] shrink-0" />}
         </DebounceButton>
 
         <DebounceButton
           onDebouncedClick={() => handleSelectItem('tea')}
-          className={`w-full flex-1 min-h-[140px] px-6 rounded-[36px] border-4 flex items-center justify-center gap-4 transition-all cursor-pointer shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:ring-4 focus:ring-yellow-400 text-center ${
+          className={`w-full flex-1 rounded-[32px] border flex flex-col sm:flex-row items-center justify-center gap-4 transition-all cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-yellow-500/50 text-center ${
             selectedItem === 'tea'
-              ? 'bg-yellow-300 border-slate-950 text-slate-950 font-black'
-              : 'bg-white border-slate-950 text-slate-900'
+              ? 'bg-yellow-50 border-yellow-400 text-yellow-700 ring-2 ring-yellow-400/20'
+              : 'bg-white border-slate-200/80 hover:bg-slate-50 text-slate-700'
           }`}
           aria-label="녹차 선택"
           aria-pressed={selectedItem === 'tea'}
         >
-          <span className="text-3xl sm:text-4xl font-black">🍵 녹차</span>
-          {selectedItem === 'tea' && <Check className="w-10 h-10 text-slate-950 stroke-[3] shrink-0" />}
+          <span className={`text-3xl sm:text-4xl font-bold ${selectedItem === 'tea' ? 'text-yellow-700' : 'text-slate-800'}`}>🍵 녹차</span>
+          {selectedItem === 'tea' && <Check className="w-10 h-10 text-yellow-600 stroke-[3] shrink-0" />}
         </DebounceButton>
 
         <DebounceButton
           onDebouncedClick={handleOrderSubmit}
           disabled={!selectedItem}
-          className={`w-full py-8 mt-2 rounded-[36px] text-3xl font-black transition-all border-4 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:ring-4 focus:ring-yellow-400 text-center ${
+          className={`w-full py-6 mt-2 rounded-[32px] text-3xl font-bold transition-all shadow-[0_12px_40px_rgba(0,0,0,0.06)] focus:outline-none focus:ring-[4px] focus:ring-yellow-500/50 text-center ${
             selectedItem
-              ? 'bg-yellow-300 border-slate-950 text-slate-950 cursor-pointer'
-              : 'bg-slate-100 border-slate-300 text-slate-400 cursor-not-allowed opacity-50 shadow-none'
+              ? 'bg-yellow-400 text-slate-900 cursor-pointer hover:bg-yellow-300 border-none'
+              : 'bg-white text-slate-300 cursor-not-allowed opacity-50 shadow-none border border-slate-200/80'
           }`}
           aria-label="선택한 메뉴 주문하기"
           aria-disabled={!selectedItem}

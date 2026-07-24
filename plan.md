@@ -14,32 +14,36 @@
 
 ## 1. 단계별 아키텍처 (반드시 이 순서로 진행)
 
-| 단계 | 산출물 | 이유 |
-|---|---|---|
-| **Phase 1** | 순수 웹 PWA (Next.js) | App Clip은 본체 앱의 App Store 심사 + App Clip Experience 사전 승인이 필요해 프로토타입 단계에서 가장 느림. 웹은 QR/NFC 태그 즉시 브라우저에서 열림 |
-| **Phase 2** | Expo(React Native) 모노레포로 이식, `react-native-web`으로 웹도 같은 코드로 빌드 | 네이티브 하드웨어 API(정밀 햅틱, 백그라운드 NFC 등)는 웹 표준 API로 한계가 있음 (§3 참고) |
-| **Phase 3** | 네이티브 앱을 스토어에 게시 → iOS App Clip 타겟 추가 | App Clip은 본체 앱 없이 단독 배포 불가 |
-| **Phase 4** | Universal Links(AASA) / App Links(assetlinks.json) 연결 → 설치 유저는 딥링크, 미설치는 App Clip/웹으로 자동 분기 | |
+| 단계        | 산출물                                                                                                           | 이유                                                                                                                                                |
+| ----------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Phase 1** | 순수 웹 PWA (Next.js)                                                                                            | App Clip은 본체 앱의 App Store 심사 + App Clip Experience 사전 승인이 필요해 프로토타입 단계에서 가장 느림. 웹은 QR/NFC 태그 즉시 브라우저에서 열림 |
+| **Phase 2** | Expo(React Native) 모노레포로 이식, `react-native-web`으로 웹도 같은 코드로 빌드                                 | 네이티브 하드웨어 API(정밀 햅틱, 백그라운드 NFC 등)는 웹 표준 API로 한계가 있음 (§3 참고)                                                           |
+| **Phase 3** | 네이티브 앱을 스토어에 게시 → iOS App Clip 타겟 추가                                                             | App Clip은 본체 앱 없이 단독 배포 불가                                                                                                              |
+| **Phase 4** | Universal Links(AASA) / App Links(assetlinks.json) 연결 → 설치 유저는 딥링크, 미설치는 App Clip/웹으로 자동 분기 |                                                                                                                                                     |
 
 **지금 시작할 것: Phase 1 (Next.js PWA)** — 단, 나중에 Phase 2로 옮길 것을 고려해서 UI 컴포넌트/상태 로직은 프레임워크 종속을 최소화해서 작성.
 
 ## 2. 전체 기술 스택
 
 ### 언어 / 코어
+
 - **TypeScript** (전 구간 필수, strict 모드)
 - **Phase 1**: Next.js 15 (App Router), React 19
 - **Phase 2+**: Expo (SDK 52+), Expo Router, React Native, `react-native-web`
 
 ### 상태관리 / 데이터
+
 - **Zustand** — 가볍고 RN/Web 동시 호환, 접근성 설정(글자 크기, 모션 감소 등) 전역 상태 관리에 적합
 - **TanStack Query** — 메뉴/주문 API 캐싱
 
 ### 스타일링 / 디자인 시스템
+
 - **Tamagui** (권장) — RN + Web을 하나의 컴포넌트로 컴파일, 애니메이션·접근성(포커스, 터치 타겟)까지 프레임워크 레벨에서 고려됨. 크로스플랫폼 "fluid" 모션에 가장 적합
   - 대안: NativeWind (Tailwind 문법 선호 시) — 단 애니메이션은 별도 라이브러리 필요
 - **디자인 토큰**: 색상 대비 WCAG 2.2 AA(4.5:1) 이상, 터치 타겟 최소 44×44pt(가능하면 88pt+)
 
 ### 애니메이션 / 모션
+
 - **react-native-reanimated 3** — 네이티브 스레드에서 돌아가 60fps 유지, 웹 빌드도 지원
 - **react-native-gesture-handler** — 스와이프/드래그 제스처 (모션 장애가 있는 사용자를 위해 제스처 실패 허용 범위를 넉넉히)
 - **모션 감소 대응 필수**:
@@ -48,6 +52,7 @@
   - → 이 값을 Zustand 전역 상태에 반영해서 모든 애니메이션 duration/scale을 조건부로 낮추거나 끄기
 
 ### 접근성(a11y) 전용
+
 - React Native 내장 접근성 prop: `accessibilityLabel`, `accessibilityRole`, `accessibilityLiveRegion`, `accessible`
 - **expo-speech** — TTS(메뉴 항목 읽어주기, 시각장애 대응)
 - 웹 검증: `@axe-core/react` (개발 중 실시간 a11y 위반 감지)
@@ -57,47 +62,30 @@
 
 > **가장 중요한 제약**: iOS Safari(웹)는 `Vibration API`를 아예 지원하지 않음(WebKit 미구현, 향후에도 계획 없음). 즉 **정밀한 햅틱 피드백이 필요하면 Phase 1 웹만으로는 한계가 있고, Phase 2 네이티브 전환이 사실상 필수**입니다. 이 점을 처음부터 설계에 반영하세요.
 
-| 기능 | Phase 1 (웹) | Phase 2+ (네이티브/Expo) |
-|---|---|---|
-| 카메라 (바코드/메뉴 스캔 등) | `getUserMedia` (iOS/Android 모두 지원) | `expo-camera` |
-| 가속도계/자이로 (기울임 제스처 등) | `DeviceMotionEvent` — **iOS는 반드시 사용자 제스처(버튼 탭) 안에서 `requestPermission()` 호출해야 동작** | `expo-sensors` (Accelerometer, Gyroscope) |
-| 햅틱/진동 | Android Chrome: `navigator.vibrate()` 동작 / **iOS Safari: 미지원** (폴리필 존재하나 iOS 18.4+부터 클릭 이벤트 1초 이내로 제한되는 등 불안정 — 프로덕션 의존 비권장) | `expo-haptics` (Core Haptics/Android Vibrator 완전 지원, 강도·패턴 세밀 제어) |
-| NFC (앱 실행 후 태그 읽기) | 웹 NFC는 Android Chrome 일부만 지원, iOS Safari 전면 미지원 | `react-native-nfc-manager` |
-| QR/NFC로 앱 **최초 실행** (미설치 유저) | URL 태깅만으로 브라우저 오픈 (별도 라이브러리 불필요) | iOS: App Clip / Android: App Links → 웹 폴백 |
+| 기능                                    | Phase 1 (웹)                                                                                                                                                         | Phase 2+ (네이티브/Expo)                                                      |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 카메라 (바코드/메뉴 스캔 등)            | `getUserMedia` (iOS/Android 모두 지원)                                                                                                                               | `expo-camera`                                                                 |
+| 가속도계/자이로 (기울임 제스처 등)      | `DeviceMotionEvent` — **iOS는 반드시 사용자 제스처(버튼 탭) 안에서 `requestPermission()` 호출해야 동작**                                                             | `expo-sensors` (Accelerometer, Gyroscope)                                     |
+| 햅틱/진동                               | Android Chrome: `navigator.vibrate()` 동작 / **iOS Safari: 미지원** (폴리필 존재하나 iOS 18.4+부터 클릭 이벤트 1초 이내로 제한되는 등 불안정 — 프로덕션 의존 비권장) | `expo-haptics` (Core Haptics/Android Vibrator 완전 지원, 강도·패턴 세밀 제어) |
+| NFC (앱 실행 후 태그 읽기)              | 웹 NFC는 Android Chrome 일부만 지원, iOS Safari 전면 미지원                                                                                                          | `react-native-nfc-manager`                                                    |
+| QR/NFC로 앱 **최초 실행** (미설치 유저) | URL 태깅만으로 브라우저 오픈 (별도 라이브러리 불필요)                                                                                                                | iOS: App Clip / Android: App Links → 웹 폴백                                  |
 
 ### 결제
+
 - **Apple Pay** (App Clip 표준 연동, 마찰 최소화) / **Google Pay**
 - 웹 단계에서는 Stripe Elements 등으로 통일 처리 후 네이티브 전환 시 각 OS 결제 SDK 연동
 
 ### 인프라 / 배포
+
 - **EAS (Expo Application Services)** — iOS/Android 빌드 + App Clip 타겟 관리
 - `.well-known/apple-app-site-association`, `.well-known/assetlinks.json` 호스팅 (도메인 서버, Vercel 등)
 - iOS App Clip 타겟: `@bacons/apple-targets` (구 `expo-apple-targets`) config plugin
 
 ### 테스트
+
 - Jest + React Native Testing Library (로직/컴포넌트)
 - Detox (E2E, 네이티브 단계 진입 후)
 - `@axe-core/react` + 수동 스크린리더 QA (a11y)
-
-## 3. Phase 1 (지금 시작) 부트스트랩 커맨드
-
-```bash
-# Next.js PWA 초기화
-npx create-next-app@latest barrier-free-kiosk --typescript --app --tailwind --eslint
-cd barrier-free-kiosk
-
-# 상태관리 / 데이터 페칭
-npm install zustand @tanstack/react-query
-
-# 접근성 검증 (개발 의존성)
-npm install -D @axe-core/react
-
-# PWA 설정
-npm install next-pwa
-
-# QR 생성 (매장 태그 출력용, 개발 스크립트에서만 사용)
-npm install -D qrcode
-```
 
 `app/layout.tsx`에 `manifest.json` 연결 + 기본 서비스워커 등록 → Vercel 배포 → 발급된 URL을 QR/NFC 태그에 인코딩.
 
