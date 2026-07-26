@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAccessibilityStore } from '@/store/useAccessibilityStore';
@@ -8,28 +8,26 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { MobileDeviceContainer } from '@/components/layout/MobileDeviceContainer';
 import { Step0LanguageSelect } from '@/components/steps/Step0LanguageSelect';
 import { Step1DisabilitySelect } from '@/components/steps/Step1DisabilitySelect';
-import { Step2DisabilityType, MainDisabilityCategory } from '@/components/steps/Step2DisabilityType';
-import { Step2SubDisability } from '@/components/steps/Step2SubDisability';
+import { Step2NeedsSelect } from '@/components/steps/Step2NeedsSelect';
 import { CustomizationPanel } from '@/components/steps/CustomizationPanel';
 import { ArrowLeft } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTranslation } from '@/hooks/useTranslation';
-
-type SetupStep = 'lang' | 'step1' | 'step2_main' | 'step2_sub' | 'customization';
-
 import { useSyncAccessibilityTheme } from '@/hooks/useSyncAccessibilityTheme';
+import { DebounceButton } from '@/components/ui/DebounceButton';
+
+type SetupStep = 'lang' | 'step1' | 'step2_needs' | 'customization';
 
 export default function SetupPage() {
   const router = useRouter();
-  const { setPreset, setProfileId, saveSettingsToCookie } = useAccessibilityStore();
+  const { saveSettingsToCookie } = useAccessibilityStore();
   const { vibrate } = useHaptics();
   const { t } = useTranslation();
   useReducedMotion();
   useSyncAccessibilityTheme();
 
   const [currentStep, setCurrentStep] = useState<SetupStep>('lang');
-  const [selectedMainCategory, setSelectedMainCategory] = useState<MainDisabilityCategory>('visual');
-
+  const [needsSelectLevel, setNeedsSelectLevel] = useState<1 | 2>(1);
 
   const handleFinishSetup = () => {
     saveSettingsToCookie();
@@ -38,21 +36,19 @@ export default function SetupPage() {
 
   const handleHeaderBack = () => {
     if (currentStep === 'customization') {
-      if (selectedMainCategory === 'hearing') {
-        setCurrentStep('step2_main');
+      setCurrentStep('step2_needs');
+    } else if (currentStep === 'step2_needs') {
+      if (needsSelectLevel === 2) {
+        setNeedsSelectLevel(1);
       } else {
-        setCurrentStep('step2_sub');
+        setCurrentStep('step1');
       }
-    } else if (currentStep === 'step2_sub') {
-      setCurrentStep('step2_main');
-    } else if (currentStep === 'step2_main') {
-      setCurrentStep('step1');
     } else if (currentStep === 'step1') {
       setCurrentStep('lang');
     }
   };
 
-  const showBack = currentStep !== 'lang';
+  const showBack = currentStep !== 'lang' && !(currentStep === 'step2_needs' && needsSelectLevel === 2);
 
   return (
     <MobileDeviceContainer>
@@ -66,62 +62,31 @@ export default function SetupPage() {
 
             {/* Step 1: Disability Need Select */}
             {currentStep === 'step1' && (
-              <Step1DisabilitySelect key="step1" onSelectDisability={() => setCurrentStep('step2_main')} />
+              <Step1DisabilitySelect key="step1" onSelectDisability={() => setCurrentStep('step2_needs')} />
             )}
 
-            {/* Step 2 Main: Disability Type Select */}
-            {currentStep === 'step2_main' && (
-              <Step2DisabilityType
-                key="step2_main"
-                onSelectMainCategory={(cat) => {
-                  setSelectedMainCategory(cat);
-                  if (cat === 'hearing') {
-                    setProfileId('hearing');
-                    setPreset('hearing');
-                    setCurrentStep('customization');
-                  } else {
-                    setCurrentStep('step2_sub');
-                  }
-                }}
+            {/* Step 2: Consolidated Multi-Select Needs */}
+            {currentStep === 'step2_needs' && (
+              <Step2NeedsSelect
+                key="step2_needs"
+                viewLevel={needsSelectLevel}
+                onChangeViewLevel={setNeedsSelectLevel}
+                onSelectNeedsComplete={() => setCurrentStep('customization')}
               />
             )}
 
-            {/* Step 2 Sub: Detailed Sub Disability Select */}
-            {currentStep === 'step2_sub' && (
-              <Step2SubDisability
-                key="step2_sub"
-                mainCategory={selectedMainCategory}
-                onSelectSubComplete={() => {
-                  const currentProfileId = useAccessibilityStore.getState().profileId;
-                  const noParams = ['mobility_switch', 'mobility_wheelchair'];
-                  const hasParams = !noParams.includes(currentProfileId || '');
-                  if (hasParams) {
-                    setCurrentStep('customization');
-                  } else {
-                    handleFinishSetup();
-                  }
-                }}
-              />
-            )}
-
-            {/* Step 2.5: Customization & Fine-Tuning */}
+            {/* Step 3: Customization & Fine-Tuning */}
             {currentStep === 'customization' && (
               <CustomizationPanel
                 key="customization"
                 onComplete={handleFinishSetup}
-                onBack={() => {
-                  if (selectedMainCategory === 'hearing') {
-                    setCurrentStep('step2_main');
-                  } else {
-                    setCurrentStep('step2_sub');
-                  }
-                }}
+                onBack={() => setCurrentStep('step2_needs')}
               />
             )}
           </AnimatePresence>
         </main>
 
-        {/* Top Left Floating Back Button inside Phone Bounds */}
+        {/* Top Left Floating Back Button */}
         <AnimatePresence>
           {showBack && (
             <motion.div
@@ -131,18 +96,16 @@ export default function SetupPage() {
               transition={{ type: 'spring', stiffness: 500, damping: 22 }}
               className="absolute top-6 left-6 z-40"
             >
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 600, damping: 18 }}
-                onClick={() => {
+              <DebounceButton
+                onDebouncedClick={() => {
                   vibrate(30);
                   handleHeaderBack();
                 }}
-                className="w-12 h-12 rounded-full bg-slate-900 text-white border border-slate-800 shadow-md hover:bg-slate-800 transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 hover:text-slate-900 active:scale-95 transition-all cursor-pointer"
                 aria-label={t("Go back to the previous screen")}
               >
                 <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-              </motion.button>
+              </DebounceButton>
             </motion.div>
           )}
         </AnimatePresence>

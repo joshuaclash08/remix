@@ -65,13 +65,16 @@ export function OrderTypeStep({
       role="region"
       aria-label={t("Eating Option Selection Screen")}
     >
-      <button
-        onClick={onBackToStoreSelect}
-        className="absolute top-6 left-6 z-30 w-12 h-12 rounded-full bg-slate-900 text-white border border-slate-800 shadow-md flex items-center justify-center cursor-pointer active:scale-95 transition-all focus:ring-4 focus:ring-slate-500/30"
+      <DebounceButton
+        onDebouncedClick={() => {
+          vibrate(30);
+          onBackToStoreSelect();
+        }}
+        className="absolute top-6 left-6 z-30 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 hover:text-slate-900 active:scale-95 transition-all cursor-pointer"
         aria-label={t("Go back to the previous screen")}
       >
-        <ArrowLeft className="w-5 h-5 stroke-[2.5] text-white" />
-      </button>
+        <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+      </DebounceButton>
 
       <div className="w-full max-w-sm mx-auto flex-1 flex flex-col justify-center pt-12">
         <div className="mb-6 text-center">

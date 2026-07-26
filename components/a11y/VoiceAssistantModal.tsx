@@ -7,7 +7,7 @@ import { useSpeech } from '@/hooks/useSpeech';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useRealMicrophone } from '@/hooks/useRealMicrophone';
 import { voiceAssistantService } from '@/lib/services';
-import { Mic, X, Plus, Volume2, Bot, AlertCircle, CheckCircle2, RotateCcw, HelpCircle } from 'lucide-react';
+import { Mic, X, Plus, Volume2, Bot, AlertCircle, CheckCircle2, RotateCcw, HelpCircle, Pause, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product } from '@/lib/types';
 
@@ -156,8 +156,8 @@ export function VoiceAssistantModal() {
                   <Mic className="w-4 h-4 text-[#3182f6]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">{t("AI 음성 주문 & 메뉴 추천")}</h3>
-                  <p className="text-[10px] text-slate-500 font-medium">마이크를 누르고 궁금한 점이나 메뉴를 말해 보세요</p>
+                  <h3 className="text-sm font-black text-slate-900">전체 보이스 키오스크 모드</h3>
+                  <p className="text-[10px] text-slate-500 font-medium">말씀을 멈추시면 2.5초 후 자동 전송됩니다</p>
                 </div>
               </div>
               <button
@@ -182,16 +182,32 @@ export function VoiceAssistantModal() {
                   }`}
                   aria-label="마이크 버튼"
                 >
-                  <Mic className={`w-8 h-8 ${isListening ? 'animate-bounce' : ''}`} />
+                  {isListening ? (
+                    <Pause className="w-9 h-9 fill-white text-white" />
+                  ) : (
+                    <Mic className="w-9 h-9 text-white" />
+                  )}
                 </button>
 
                 <p className="mt-3 text-xs font-black text-slate-800">
                   {isListening
-                    ? '말씀해 주세요... (듣고 있습니다)'
+                    ? '듣고 있습니다... (말씀을 멈추시면 자동 전송)'
                     : isProcessing
                     ? 'AI가 음성을 분석하고 있습니다...'
                     : '마이크 버튼을 눌러 말씀하세요'}
                 </p>
+
+                {/* Return to Standard Catalog Button */}
+                <button
+                  onClick={() => {
+                    vibrate(30);
+                    setVoiceModalOpen(false);
+                  }}
+                  className="mt-3 px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>일반 메뉴판으로 돌아가기</span>
+                </button>
 
                 {/* Live Transcript Display */}
                 {(liveTranscript || transcript) && (

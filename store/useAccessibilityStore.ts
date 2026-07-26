@@ -1,132 +1,254 @@
 import { create } from 'zustand';
-import type { FontScale, A11yPreset, AppLanguage } from '@/lib/types';
+import type { FontScale, AccessibilityNeed, AccessibilitySettings, AppLanguage } from '@/lib/types';
 import { accessibilityService } from '@/lib/services';
 
-export type { FontScale, A11yPreset, AppLanguage };
+export type { FontScale, AccessibilityNeed, AppLanguage };
 
 interface AccessibilityState {
   // --- Original Mode States ---
+  language: AppLanguage;
+  selectedNeeds: AccessibilityNeed[];
   highContrast: boolean;
   fontScale: FontScale;
+  fontMultiplier: number;
   lowReachMode: boolean;
   ttsEnabled: boolean;
+  ttsAutoPlay: boolean;
   reduceMotion: boolean;
   hapticFeedback: boolean;
-  activePreset: A11yPreset;
 
   // --- Advanced Mode States ---
   dyslexiaMode: boolean;
   debounceMode: boolean;
   darkMode: boolean;
   switchAccessMode: boolean;
+  switchScanInterval: number;
   colorBlindMode: boolean;
   easyMode: boolean;
+  giantTouchTargets: boolean;
+  dyslexiaTypography: boolean;
+  dyslexiaLetterSpacing: number;
+  dyslexiaLineHeight: number;
+  visualCaptionMode: boolean;
+  timeoutExtensionEnabled: boolean;
 
   // --- Custom Parameters ---
-  profileId: string | null;
   debounceDuration: number;
-  fontMultiplier: number;
-
   visualHapticPulse: boolean;
-  language: AppLanguage;
 
   // Actions
+  setLanguage: (lang: AppLanguage) => void;
+  setSelectedNeeds: (needs: AccessibilityNeed[]) => void;
   setHighContrast: (enabled: boolean) => void;
   setFontScale: (scale: FontScale) => void;
+  setFontMultiplier: (mult: number) => void;
   setLowReachMode: (enabled: boolean) => void;
   setTtsEnabled: (enabled: boolean) => void;
+  setTtsAutoPlay: (enabled: boolean) => void;
   setReduceMotion: (enabled: boolean) => void;
   setHapticFeedback: (enabled: boolean) => void;
 
   setDyslexiaMode: (enabled: boolean) => void;
   setDebounceMode: (enabled: boolean) => void;
+  setDebounceDuration: (dur: number) => void;
   setDarkMode: (enabled: boolean) => void;
   setSwitchAccessMode: (enabled: boolean) => void;
+  setSwitchScanInterval: (interval: number) => void;
   setColorBlindMode: (enabled: boolean) => void;
   setEasyMode: (enabled: boolean) => void;
-
-  setProfileId: (id: string | null) => void;
-  setDebounceDuration: (dur: number) => void;
-  setFontMultiplier: (mult: number) => void;
-
-  setLanguage: (lang: AppLanguage) => void;
+  setGiantTouchTargets: (enabled: boolean) => void;
+  setDyslexiaTypography: (enabled: boolean) => void;
+  setDyslexiaLetterSpacing: (spacing: number) => void;
+  setDyslexiaLineHeight: (height: number) => void;
+  setVisualCaptionMode: (enabled: boolean) => void;
+  setTimeoutExtensionEnabled: (enabled: boolean) => void;
 
   saveSettingsToCookie: () => void;
   loadSettingsFromCookie: () => boolean;
-
-  setPreset: (preset: A11yPreset) => void;
   triggerVisualHaptic: () => void;
   resetAll: () => void;
 }
 
+const DEFAULT_STATE = accessibilityService.getDefaultSettings('ko');
+
+// Helper to determine if we are running in Kiosk / Shared device mode
+const checkIsSharedDevice = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const search = window.location.search;
+  const isShared = search.includes('table=') || search.includes('store=') || sessionStorage.getItem('bf_is_shared_device') === 'true';
+  if (isShared) {
+    sessionStorage.setItem('bf_is_shared_device', 'true');
+  }
+  return isShared;
+};
+
 export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
-  highContrast: false,
-  fontScale: 'normal',
-  lowReachMode: false,
-  ttsEnabled: false,
-  reduceMotion: false,
-  hapticFeedback: true,
-  activePreset: 'default',
-  
-  dyslexiaMode: false,
-  debounceMode: false,
-  darkMode: false,
-  switchAccessMode: false,
-  colorBlindMode: false,
-  easyMode: false,
-
-  profileId: null,
+  ...DEFAULT_STATE,
   debounceDuration: 500,
-  fontMultiplier: 1.0,
-
   visualHapticPulse: false,
-  language: 'ko',
-
-  setHighContrast: (highContrast) => set({ highContrast, activePreset: 'default' }),
-  setFontScale: (fontScale) => set({ fontScale, activePreset: 'default' }),
-  setLowReachMode: (lowReachMode) => set({ lowReachMode, activePreset: 'default' }),
-  setTtsEnabled: (ttsEnabled) => set({ ttsEnabled, activePreset: 'default' }),
-  setReduceMotion: (reduceMotion) => set({ reduceMotion, activePreset: 'default' }),
-  setHapticFeedback: (hapticFeedback) => set({ hapticFeedback }),
-
-  setDyslexiaMode: (dyslexiaMode) => set({ dyslexiaMode, activePreset: 'default' }),
-  setDebounceMode: (debounceMode) => set({ debounceMode, activePreset: 'default' }),
-  setDarkMode: (darkMode) => set({ darkMode, activePreset: 'default' }),
-  setSwitchAccessMode: (switchAccessMode) => set({ switchAccessMode, activePreset: 'default' }),
-  setColorBlindMode: (colorBlindMode) => set({ colorBlindMode, activePreset: 'default' }),
-  setEasyMode: (easyMode) => set({ easyMode, activePreset: 'default' }),
-
-  setProfileId: (profileId) => set({ profileId }),
-  setDebounceDuration: (debounceDuration) => set({ debounceDuration }),
-  setFontMultiplier: (fontMultiplier) => set({ fontMultiplier }),
 
   setLanguage: (language) => {
     set({ language });
     get().saveSettingsToCookie();
   },
 
+  setSelectedNeeds: (needs) => {
+    const merged = accessibilityService.mergeSettings(needs, get().language);
+    set({
+      ...merged,
+      selectedNeeds: needs
+    });
+    get().saveSettingsToCookie();
+  },
+
+  setHighContrast: (highContrast) => {
+    set({ highContrast });
+    get().saveSettingsToCookie();
+  },
+  setFontScale: (fontScale) => {
+    set({ fontScale });
+    get().saveSettingsToCookie();
+  },
+  setFontMultiplier: (fontMultiplier) => {
+    set({ fontMultiplier });
+    get().saveSettingsToCookie();
+  },
+  setLowReachMode: (lowReachMode) => {
+    set({ lowReachMode });
+    get().saveSettingsToCookie();
+  },
+  setTtsEnabled: (ttsEnabled) => {
+    set({ ttsEnabled });
+    get().saveSettingsToCookie();
+  },
+  setTtsAutoPlay: (ttsAutoPlay) => {
+    set({ ttsAutoPlay });
+    get().saveSettingsToCookie();
+  },
+  setReduceMotion: (reduceMotion) => {
+    set({ reduceMotion });
+    get().saveSettingsToCookie();
+  },
+  setHapticFeedback: (hapticFeedback) => {
+    set({ hapticFeedback });
+    get().saveSettingsToCookie();
+  },
+
+  setDyslexiaMode: (dyslexiaMode) => {
+    set({ dyslexiaMode });
+    get().saveSettingsToCookie();
+  },
+  setDebounceMode: (debounceMode) => {
+    set({ debounceMode });
+    get().saveSettingsToCookie();
+  },
+  setDebounceDuration: (debounceDuration) => {
+    set({ debounceDuration });
+    get().saveSettingsToCookie();
+  },
+  setDarkMode: (darkMode) => {
+    set({ darkMode });
+    get().saveSettingsToCookie();
+  },
+  setSwitchAccessMode: (switchAccessMode) => {
+    set({ switchAccessMode });
+    get().saveSettingsToCookie();
+  },
+  setSwitchScanInterval: (switchScanInterval) => {
+    set({ switchScanInterval });
+    get().saveSettingsToCookie();
+  },
+  setColorBlindMode: (colorBlindMode) => {
+    set({ colorBlindMode });
+    get().saveSettingsToCookie();
+  },
+  setEasyMode: (easyMode) => {
+    set({ easyMode });
+    get().saveSettingsToCookie();
+  },
+  setGiantTouchTargets: (giantTouchTargets) => {
+    set({ giantTouchTargets });
+    get().saveSettingsToCookie();
+  },
+  setDyslexiaTypography: (dyslexiaTypography) => {
+    set({ dyslexiaTypography });
+    get().saveSettingsToCookie();
+  },
+  setDyslexiaLetterSpacing: (dyslexiaLetterSpacing) => {
+    set({ dyslexiaLetterSpacing });
+    get().saveSettingsToCookie();
+  },
+  setDyslexiaLineHeight: (dyslexiaLineHeight) => {
+    set({ dyslexiaLineHeight });
+    get().saveSettingsToCookie();
+  },
+  setVisualCaptionMode: (visualCaptionMode) => {
+    set({ visualCaptionMode });
+    get().saveSettingsToCookie();
+  },
+  setTimeoutExtensionEnabled: (timeoutExtensionEnabled) => {
+    set({ timeoutExtensionEnabled });
+    get().saveSettingsToCookie();
+  },
+
   saveSettingsToCookie: () => {
     const state = get();
-    accessibilityService.setCookie('bf_lang', state.language);
-    accessibilityService.setCookie('bf_disability_profile', state.profileId || '');
-    accessibilityService.setCookie('bf_active_preset', state.activePreset);
-    accessibilityService.setCookie('bf_high_contrast', state.highContrast ? 'true' : 'false');
-    accessibilityService.setCookie('bf_font_multiplier', state.fontMultiplier.toString());
-    accessibilityService.setCookie('bf_debounce_duration', state.debounceDuration.toString());
-    accessibilityService.setCookie('bf_dyslexia_mode', state.dyslexiaMode ? 'true' : 'false');
-    accessibilityService.setCookie('bf_debounce_mode', state.debounceMode ? 'true' : 'false');
-    accessibilityService.setCookie('bf_dark_mode', state.darkMode ? 'true' : 'false');
-    accessibilityService.setCookie('bf_color_blind_mode', state.colorBlindMode ? 'true' : 'false');
-    accessibilityService.setCookie('bf_easy_mode', state.easyMode ? 'true' : 'false');
-    accessibilityService.setCookie('bf_haptic_feedback', state.hapticFeedback ? 'true' : 'false');
-    accessibilityService.setCookie('bf_low_reach_mode', state.lowReachMode ? 'true' : 'false');
-    accessibilityService.setCookie('bf_setup_completed', 'true');
+    const isShared = checkIsSharedDevice();
+
+    const settingsData = {
+      language: state.language,
+      // PRIVACY: Avoid storing medical selectedNeeds array or profile names.
+      // We only store the merged numeric and boolean configurations.
+      highContrast: state.highContrast ? 'true' : 'false',
+      fontMultiplier: state.fontMultiplier.toString(),
+      fontScale: state.fontScale,
+      lowReachMode: state.lowReachMode ? 'true' : 'false',
+      ttsEnabled: state.ttsEnabled ? 'true' : 'false',
+      ttsAutoPlay: state.ttsAutoPlay ? 'true' : 'false',
+      reduceMotion: state.reduceMotion ? 'true' : 'false',
+      hapticFeedback: state.hapticFeedback ? 'true' : 'false',
+      dyslexiaMode: state.dyslexiaMode ? 'true' : 'false',
+      debounceMode: state.debounceMode ? 'true' : 'false',
+      debounceDuration: state.debounceDuration.toString(),
+      darkMode: state.darkMode ? 'true' : 'false',
+      switchAccessMode: state.switchAccessMode ? 'true' : 'false',
+      switchScanInterval: state.switchScanInterval.toString(),
+      colorBlindMode: state.colorBlindMode ? 'true' : 'false',
+      easyMode: state.easyMode ? 'true' : 'false',
+      giantTouchTargets: state.giantTouchTargets ? 'true' : 'false',
+      dyslexiaTypography: state.dyslexiaTypography ? 'true' : 'false',
+      dyslexiaLetterSpacing: state.dyslexiaLetterSpacing.toString(),
+      dyslexiaLineHeight: state.dyslexiaLineHeight.toString(),
+      visualCaptionMode: state.visualCaptionMode ? 'true' : 'false',
+      timeoutExtensionEnabled: state.timeoutExtensionEnabled ? 'true' : 'false',
+      setupCompleted: 'true'
+    };
+
+    if (isShared && typeof window !== 'undefined') {
+      // Shared Device: Store in sessionStorage
+      Object.entries(settingsData).forEach(([key, val]) => {
+        sessionStorage.setItem(`bf_${key}`, val);
+      });
+    } else {
+      // Personal Phone: Store in Cookies
+      Object.entries(settingsData).forEach(([key, val]) => {
+        accessibilityService.setCookie(`bf_${key}`, val);
+      });
+    }
   },
 
   loadSettingsFromCookie: () => {
-    const setupCompleted = accessibilityService.getCookie('bf_setup_completed');
+    const isShared = checkIsSharedDevice();
+    const getValue = (key: string): string | null => {
+      if (isShared && typeof window !== 'undefined') {
+        return sessionStorage.getItem(`bf_${key}`);
+      }
+      return accessibilityService.getCookie(`bf_${key}`);
+    };
+
+    const setupCompleted = getValue('setupCompleted');
     if (setupCompleted !== 'true') {
-      const savedLang = accessibilityService.getCookie('bf_lang') as AppLanguage | null;
+      const savedLang = getValue('language') as AppLanguage | null;
       if (savedLang) {
         set({ language: savedLang });
       }
@@ -134,56 +256,61 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
     }
 
     try {
-      const language = (accessibilityService.getCookie('bf_lang') as AppLanguage) || 'ko';
-      const profileId = accessibilityService.getCookie('bf_disability_profile') || null;
-      const activePreset = (accessibilityService.getCookie('bf_active_preset') as A11yPreset) || 'default';
-      const highContrast = accessibilityService.getCookie('bf_high_contrast') === 'true';
-      const fontMultiplier = parseFloat(accessibilityService.getCookie('bf_font_multiplier') || '1.0');
-      const debounceDuration = parseInt(accessibilityService.getCookie('bf_debounce_duration') || '500', 10);
-      const dyslexiaMode = accessibilityService.getCookie('bf_dyslexia_mode') === 'true';
-      const debounceMode = accessibilityService.getCookie('bf_debounce_mode') === 'true';
-      const darkMode = accessibilityService.getCookie('bf_dark_mode') === 'true';
-      const colorBlindMode = accessibilityService.getCookie('bf_color_blind_mode') === 'true';
-      const easyMode = accessibilityService.getCookie('bf_easy_mode') === 'true';
-      const hapticFeedback = accessibilityService.getCookie('bf_haptic_feedback') !== 'false';
-      const lowReachMode = accessibilityService.getCookie('bf_low_reach_mode') === 'true';
+      const language = (getValue('language') as AppLanguage) || 'ko';
+      const highContrast = getValue('highContrast') === 'true';
+      const fontScale = (getValue('fontScale') as FontScale) || 'normal';
+      const fontMultiplier = parseFloat(getValue('fontMultiplier') || '1.0');
+      const lowReachMode = getValue('lowReachMode') === 'true';
+      const ttsEnabled = getValue('ttsEnabled') === 'true';
+      const ttsAutoPlay = getValue('ttsAutoPlay') === 'true';
+      const reduceMotion = getValue('reduceMotion') === 'true';
+      const hapticFeedback = getValue('hapticFeedback') !== 'false';
+      const dyslexiaMode = getValue('dyslexiaMode') === 'true';
+      const debounceMode = getValue('debounceMode') === 'true';
+      const debounceDuration = parseInt(getValue('debounceDuration') || '500', 10);
+      const darkMode = getValue('darkMode') === 'true';
+      const switchAccessMode = getValue('switchAccessMode') === 'true';
+      const switchScanInterval = parseInt(getValue('switchScanInterval') || '2000', 10);
+      const colorBlindMode = getValue('colorBlindMode') === 'true';
+      const easyMode = getValue('easyMode') === 'true';
+      const giantTouchTargets = getValue('giantTouchTargets') === 'true';
+      const dyslexiaTypography = getValue('dyslexiaTypography') === 'true';
+      const dyslexiaLetterSpacing = parseFloat(getValue('dyslexiaLetterSpacing') || '0.0');
+      const dyslexiaLineHeight = parseFloat(getValue('dyslexiaLineHeight') || '1.2');
+      const visualCaptionMode = getValue('visualCaptionMode') === 'true';
+      const timeoutExtensionEnabled = getValue('timeoutExtensionEnabled') === 'true';
 
       set({
         language,
-        profileId,
-        activePreset,
+        selectedNeeds: [], // Privacy: Loaded dynamically, do not persist diagnosis
         highContrast,
+        fontScale,
         fontMultiplier,
-        debounceDuration,
+        lowReachMode,
+        ttsEnabled,
+        ttsAutoPlay,
+        reduceMotion,
+        hapticFeedback,
         dyslexiaMode,
         debounceMode,
+        debounceDuration,
         darkMode,
+        switchAccessMode,
+        switchScanInterval,
         colorBlindMode,
         easyMode,
-        hapticFeedback,
-        lowReachMode,
+        giantTouchTargets,
+        dyslexiaTypography,
+        dyslexiaLetterSpacing,
+        dyslexiaLineHeight,
+        visualCaptionMode,
+        timeoutExtensionEnabled,
       });
       return true;
     } catch (e) {
-      console.error('Failed to load split a11y settings from cookies', e);
+      console.error('Failed to load split a11y settings', e);
       return false;
     }
-  },
-
-  setPreset: (preset) => {
-    const config = accessibilityService.getPresetConfig(preset);
-    set({
-      dyslexiaMode: false,
-      debounceMode: false,
-      darkMode: false,
-      switchAccessMode: false,
-      colorBlindMode: false,
-      easyMode: false,
-      lowReachMode: false,
-      debounceDuration: 500,
-      fontMultiplier: 1.0,
-      ...config,
-    });
   },
 
   triggerVisualHaptic: () => {
@@ -193,14 +320,16 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   },
 
   resetAll: () => {
-    accessibilityService.clearAllCookies();
-    const defaultConfig = accessibilityService.getPresetConfig('default');
+    const isShared = checkIsSharedDevice();
+    if (isShared && typeof window !== 'undefined') {
+      sessionStorage.clear();
+    } else {
+      accessibilityService.clearAllCookies();
+    }
     set({
-      profileId: null,
+      ...DEFAULT_STATE,
       debounceDuration: 500,
-      fontMultiplier: 1.0,
       visualHapticPulse: false,
-      ...defaultConfig,
     });
   },
 }));

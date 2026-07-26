@@ -95,11 +95,12 @@ export function OptionSelectModal({ product, onClose }: Props) {
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   onClick={handleVoiceRead}
-                  className="p-2 rounded-full bg-blue-50 text-[#3182f6] hover:bg-blue-100 transition-colors cursor-pointer border-none flex items-center justify-center min-h-[36px] min-w-[36px]"
+                  className="px-2.5 py-1.5 rounded-xl bg-blue-50 text-[#3182f6] hover:bg-blue-100 transition-colors cursor-pointer border-none flex items-center gap-1 min-h-[38px] active:scale-95"
                   title={t("Listen Description")}
                   aria-label={`${productName} ${t("Listen Description")}`}
                 >
-                  <Volume2 className="w-4 h-4" />
+                  <Volume2 className="w-5 h-5 text-[#3182f6]" />
+                  <span className="text-xs font-extrabold text-[#3182f6]">{t("Listen") || "듣기"}</span>
                 </button>
                 <button
                   onClick={onClose}
@@ -111,20 +112,20 @@ export function OptionSelectModal({ product, onClose }: Props) {
               </div>
             </div>
 
-            {/* Product Description Box - Shown when configuring options / adding to cart */}
-            {product.description && (
-              <div className="mb-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80 shrink-0">
-                <div className="flex items-start gap-2">
-                  <Info className="w-4 h-4 text-[#3182f6] shrink-0 mt-0.5" />
-                  <p className="text-xs text-slate-700 font-semibold leading-relaxed">
-                    {product.description}
+            {/* Product Description Box - Primary location for product details */}
+            {(product.description || product.easyDescription) && (
+              <div className="mb-3.5 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 shrink-0 shadow-2xs">
+                <div className="flex items-start gap-2.5">
+                  <Info className="w-4.5 h-4.5 text-[#3182f6] shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">
+                    {product.easyDescription || product.description}
                   </p>
                 </div>
                 {product.allergies && product.allergies.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-bold text-slate-500">알레르기:</span>
+                  <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] font-extrabold text-slate-500">알레르기:</span>
                     {product.allergies.map((allergy, idx) => (
-                      <span key={idx} className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200/60">
+                      <span key={idx} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200/70">
                         {allergy}
                       </span>
                     ))}

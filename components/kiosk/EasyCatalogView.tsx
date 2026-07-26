@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Product } from '@/lib/mockData';
+import { Product } from '@/lib/types';
 import { useCartStore } from '@/store/useCartStore';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useSpeech } from '@/hooks/useSpeech';
-import { Volume2, Plus, RotateCcw, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { RotateCcw, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
@@ -19,28 +19,12 @@ export function EasyCatalogView({ products, onSelectProduct }: Props) {
   const { speak } = useSpeech();
 
   const [page, setPage] = useState(0);
-  const ITEMS_PER_PAGE = 4; // Exactly 4 large items per view for minimal cognitive load
+  
+  // GAIA Guideline: Limit options to 4 per screen for maximum clarity & touch target size
+  const ITEMS_PER_PAGE = 4; 
 
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
   const currentProducts = products.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
-
-  const [addedItemIds, setAddedItemIds] = useState<Set<string>>(new Set());
-
-  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
-    e.stopPropagation();
-    vibrate([40, 40]);
-    addToCart(product, []);
-    speak(`${product.name}를 장바구니에 담았습니다.`, true);
-
-    setAddedItemIds((prev) => new Set(prev).add(product.id));
-    setTimeout(() => {
-      setAddedItemIds((prev) => {
-        const next = new Set(prev);
-        next.delete(product.id);
-        return next;
-      });
-    }, 1200);
-  };
 
   const handleReorderLast = () => {
     if (lastReceipt && lastReceipt.items && lastReceipt.items.length > 0) {
@@ -53,18 +37,18 @@ export function EasyCatalogView({ products, onSelectProduct }: Props) {
   };
 
   return (
-    <div className="w-full flex flex-col space-y-4">
+    <div className="w-full flex-1 flex flex-col justify-between space-y-4 pb-1">
       {/* 1-Touch "지난번과 같은 걸로" Re-order Button */}
       {lastReceipt && (
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleReorderLast}
-          className="w-full p-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-sm flex items-center justify-between shadow-md cursor-pointer border-none transition-all"
+          className="w-full p-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-sm flex items-center justify-between shadow-md cursor-pointer border-none transition-all shrink-0"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <RotateCcw className="w-5 h-5 text-white animate-spin-slow" />
             <div className="text-left">
-              <span className="block text-xs font-extrabold text-amber-100">원터치 재주문</span>
+              <span className="block text-[10px] font-black text-amber-100 uppercase tracking-wider">원터치 재주문 (1-Touch Reorder)</span>
               <span className="text-sm font-black text-white">지난번 먹었던 메뉴 그대로 담기</span>
             </div>
           </div>
@@ -72,105 +56,28 @@ export function EasyCatalogView({ products, onSelectProduct }: Props) {
         </motion.button>
       )}
 
-      {/* 4 Large Items Grid */}
-      <div className="grid grid-cols-2 gap-3.5">
+      {/* 4 Items Grid (2 cols x 2 rows) - Giant easy-to-read cards */}
+      <div className="grid grid-cols-2 gap-3.5 flex-1">
         {currentProducts.map((prod) => {
-          const isRecentlyAdded = addedItemIds.has(prod.id);
-          const easyText = prod.easyDescription || prod.voiceDescription || `${prod.name}, ${prod.price.toLocaleString()}원`;
-
           return (
-            <motion.div
-              key={prod.id}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                vibrate(40);
-                onSelectProduct(prod);
-              }}
-              className="relative rounded-2xl bg-white border-2 border-slate-300 p-3 shadow-sm hover:border-[#3182f6] flex flex-col justify-between cursor-pointer min-h-[260px]"
-            >
-              {/* Top Bar: Listen Button */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                  {prod.price.toLocaleString()}원
-                </span>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    vibrate(30);
-                    speak(easyText, true);
-                  }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#3182f6] border border-blue-200 cursor-pointer text-[11px] font-black"
-                  aria-label={`${prod.name} 쉬운 설명 듣기`}
-                >
-                  <Volume2 className="w-3.5 h-3.5 text-[#3182f6]" />
-                  <span>설명 듣기</span>
-                </button>
-              </div>
-
-              {/* Large Image */}
-              <div className="w-full h-32 rounded-xl bg-slate-100 overflow-hidden mb-2.5 flex items-center justify-center border border-slate-200">
-                <img
-                  src={prod.image}
-                  alt=""
-                  aria-hidden="true"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLElement).style.display = 'none';
-                  }}
-                />
-              </div>
-
-              {/* Title & Short Easy Description */}
-              <div className="flex-1 flex flex-col justify-start">
-                <h3 className="text-sm font-black text-slate-900 leading-tight mb-1 truncate">
-                  {prod.name}
-                </h3>
-                <p className="text-[11px] font-bold text-slate-600 line-clamp-2 leading-relaxed">
-                  {prod.easyDescription || prod.description}
-                </p>
-              </div>
-
-              {/* Big CTA Button */}
-              <button
-                onClick={(e) => handleAddToCart(prod, e)}
-                className={`mt-2.5 w-full py-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all border-none cursor-pointer min-h-[48px] ${
-                  isRecentlyAdded
-                    ? 'bg-emerald-500 text-white animate-bounce'
-                    : 'bg-[#3182f6] hover:bg-[#2b70d4] text-white active:scale-95'
-                }`}
-                aria-label={`${prod.name} ${prod.price.toLocaleString()}원 담기`}
-              >
-                {isRecentlyAdded ? (
-                  <>
-                    <Check className="w-4 h-4 stroke-[3]" />
-                    <span>담겼습니다!</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 stroke-[3]" />
-                    <span>담기</span>
-                  </>
-                )}
-              </button>
-            </motion.div>
+            <EasyCardItem key={prod.id} prod={prod} onSelectProduct={onSelectProduct} vibrate={vibrate} />
           );
         })}
       </div>
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between pt-2 shrink-0">
           <button
             disabled={page === 0}
             onClick={() => {
               vibrate(30);
               setPage((p) => Math.max(0, p - 1));
             }}
-            className="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-900 font-black text-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer border-none"
+            className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-900 font-black text-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer border-none"
           >
             <ChevronLeft className="w-4 h-4" />
-            <span>이전 4개</span>
+            <span>이전 {ITEMS_PER_PAGE}개</span>
           </button>
 
           <span className="text-xs font-black text-slate-700">
@@ -183,13 +90,95 @@ export function EasyCatalogView({ products, onSelectProduct }: Props) {
               vibrate(30);
               setPage((p) => Math.min(totalPages - 1, p + 1));
             }}
-            className="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-black text-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer border-none"
+            className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-black text-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer border-none"
           >
-            <span>다음 4개</span>
+            <span>다음 {ITEMS_PER_PAGE}개</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       )}
     </div>
+  );
+}
+
+function EasyCardItem({
+  prod,
+  onSelectProduct,
+  vibrate,
+}: {
+  prod: Product;
+  onSelectProduct: (p: Product) => void;
+  vibrate: (pattern?: number | number[]) => void;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Extract first sentence of description
+  const shortDescription = prod.description 
+    ? prod.description.split(/[.!?]/)[0] + '.'
+    : '';
+
+  return (
+    <motion.div
+      whileTap={{ scale: 0.96 }}
+      onClick={() => {
+        vibrate(40);
+        onSelectProduct(prod);
+      }}
+      className="group relative overflow-hidden rounded-3xl bg-white cursor-pointer w-full shadow-xs border border-slate-200/90 hover:border-[#3182f6] transition-all flex flex-col h-full"
+      role="button"
+      tabIndex={0}
+      aria-label={`${prod.name}, ${shortDescription} ${prod.price.toLocaleString()}원. 선택 또는 상세 선택하려면 누르세요.`}
+    >
+      {/* 1. Image container (45% height) */}
+      <div className="relative w-full h-[100px] overflow-hidden bg-slate-100 shrink-0">
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-slate-200 animate-pulse z-0" />
+        )}
+        <img
+          src={prod.image}
+          alt=""
+          aria-hidden="true"
+          onLoad={() => setIsLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          onError={(e) => {
+            (e.currentTarget as HTMLElement).style.display = 'none';
+            setIsLoaded(true);
+          }}
+        />
+
+        {prod.isPopular && (
+          <div 
+            className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500 text-white font-black text-[9px] shadow-xs"
+            aria-label="인기 추천"
+          >
+            <Flame className="w-2.5 h-2.5 fill-white text-white" />
+            <span>추천</span>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Text Content (Name, Description, Price) */}
+      <div className="p-3 flex-1 flex flex-col justify-between text-left gap-1">
+        <div>
+          <h3 className="text-sm font-black text-slate-900 leading-snug line-clamp-1 tracking-tight">
+            {prod.name}
+          </h3>
+          <p className="text-[10px] sm:text-xs font-bold text-slate-400 leading-normal line-clamp-2 mt-1 select-none">
+            {shortDescription}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 mt-1">
+          <span className="text-xs font-black text-[#3182f6]">
+            {prod.price.toLocaleString()}원
+          </span>
+          <span className="text-[9px] bg-blue-50 text-[#3182f6] px-1.5 py-0.5 rounded font-black">
+            선택
+          </span>
+        </div>
+      </div>
+    </motion.div>
   );
 }

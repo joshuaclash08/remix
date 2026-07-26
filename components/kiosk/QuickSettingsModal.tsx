@@ -146,10 +146,10 @@ export function QuickSettingsModal({ isOpen, onClose, onResetToStep1 }: Props) {
                 </button>
               </div>
 
-              {/* 4. 애니메이션 끄기 */}
+              {/* 4. 움직임 최소화 (Reduce Motion) */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div>
-                  <span className="text-xs font-bold text-slate-900">애니메이션 끄기</span>
+                  <span className="text-xs font-bold text-slate-900">움직임 최소화</span>
                   <span className="text-[10px] text-slate-400 block mt-0.5">화면 흔들림 및 시각적 움직임 최소화</span>
                 </div>
                 <button
@@ -162,25 +162,6 @@ export function QuickSettingsModal({ isOpen, onClose, onResetToStep1 }: Props) {
                   }`}
                 >
                   {reduceMotion ? 'ON' : 'OFF'}
-                </button>
-              </div>
-
-              {/* 5. 오디오 낭독 기본값 */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <div>
-                  <span className="text-xs font-bold text-slate-900">오디오 낭독 기본값</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">쉬운말 설명을 자동으로 낭독</span>
-                </div>
-                <button
-                  onClick={() => {
-                    vibrate(20);
-                    setTtsEnabled(!ttsEnabled);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-colors ${
-                    ttsEnabled ? 'bg-[#3182f6] text-white border-none' : 'bg-slate-200 text-slate-700 border-none'
-                  }`}
-                >
-                  {ttsEnabled ? 'ON' : 'OFF'}
                 </button>
               </div>
             </div>
