@@ -24,6 +24,8 @@ export interface Product {
   isPopular?: boolean;
   isSoldOut?: boolean;
   allergies?: string[];
+  nutrition?: Record<string, number>;
+  originInfo?: string;
   optionGroups?: ProductOptionGroup[];
 }
 
@@ -70,6 +72,7 @@ export interface MenuItem {
   isRecommended?: boolean;
   nutrition?: Record<string, number>;
   allergens?: string[];
+  originInfo?: string;
 }
 
 export interface MenuSection {

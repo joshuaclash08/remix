@@ -131,6 +131,8 @@ export const mapBurgerToProduct = (item: MenuItem): Product => {
     easyDescription: item.easyDescription || item.voiceDescription || `${item.nameKo}, 가격 ${item.price.toLocaleString()}원. ${item.description}`,
     isPopular: item.isRecommended || item.isNew,
     allergies: item.allergens,
+    nutrition: item.nutrition,
+    originInfo: item.originInfo,
     optionGroups: isSet ? [
       {
         id: 'opt-side',
