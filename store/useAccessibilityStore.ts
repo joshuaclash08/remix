@@ -1,60 +1,34 @@
 import { create } from 'zustand';
+import type { FontScale, A11yPreset, AppLanguage } from '@/lib/types';
+import { accessibilityService } from '@/lib/services';
 
-export type FontScale = 'normal' | 'large' | 'xlarge';
-export type A11yPreset = 'default' | 'visual' | 'hearing' | 'mobility' | 'cognitive';
-
-// Cookie Utility functions
-export function setCookie(name: string, value: string, maxAgeSeconds: number) {
-  if (typeof document !== 'undefined') {
-    try {
-      document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAgeSeconds}; path=/`;
-    } catch (e) {
-      console.warn('Failed to set cookie', e);
-    }
-  }
-}
-
-export function getCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  try {
-    const matches = document.cookie.match(new RegExp(
-      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-    ));
-    return matches ? decodeURIComponent(matches[1]) : null;
-  } catch (e) {
-    console.warn('Failed to get cookie', e);
-    return null;
-  }
-}
+export type { FontScale, A11yPreset, AppLanguage };
 
 interface AccessibilityState {
   // --- Original Mode States ---
   highContrast: boolean;
   fontScale: FontScale;
-  lowReachMode: boolean; // 휠체어 / 하단 집중 레이아웃 모드
-  ttsEnabled: boolean; // 음성 자동 읽기 (TTS)
-  reduceMotion: boolean; // 모션 감수 / 전정기관 케어 모드
-  hapticFeedback: boolean; // 진동 및 시각 햅틱 펄스
+  lowReachMode: boolean;
+  ttsEnabled: boolean;
+  reduceMotion: boolean;
+  hapticFeedback: boolean;
   activePreset: A11yPreset;
 
-  // --- New Advanced Mode States ---
-  dyslexiaMode: boolean; // 난독증 타이포그래피
-  debounceMode: boolean; // 수전증/미세운동장애 500ms 디바운스 적용
-  darkMode: boolean; // 광과민성 다크모드
-  switchAccessMode: boolean; // 상지 마비 스위치 제어
-  colorBlindMode: boolean; // 색각 이상 이중 기호화
-  easyMode: boolean; // 발달/지적 장애, 고령층용 인지 부하 통제
+  // --- Advanced Mode States ---
+  dyslexiaMode: boolean;
+  debounceMode: boolean;
+  darkMode: boolean;
+  switchAccessMode: boolean;
+  colorBlindMode: boolean;
+  easyMode: boolean;
 
-  // --- Custom Adjustable Parameters (User Fine-Tuning) ---
-  profileId: string | null; // e.g., 'visual_low_vision', 'mobility_tremor'
-  debounceDuration: number; // in milliseconds (200ms ~ 1000ms)
-  fontMultiplier: number; // multiplier scale (1.0 ~ 2.0)
+  // --- Custom Parameters ---
+  profileId: string | null;
+  debounceDuration: number;
+  fontMultiplier: number;
 
-  // Visual Haptic Indicator state for web presentation
   visualHapticPulse: boolean;
-
-  // --- Language State ---
-  language: 'ko' | 'en';
+  language: AppLanguage;
 
   // Actions
   setHighContrast: (enabled: boolean) => void;
@@ -75,7 +49,7 @@ interface AccessibilityState {
   setDebounceDuration: (dur: number) => void;
   setFontMultiplier: (mult: number) => void;
 
-  setLanguage: (lang: 'ko' | 'en') => void;
+  setLanguage: (lang: AppLanguage) => void;
 
   saveSettingsToCookie: () => void;
   loadSettingsFromCookie: () => boolean;
@@ -102,11 +76,10 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   easyMode: false,
 
   profileId: null,
-  debounceDuration: 500, // Default 500ms
-  fontMultiplier: 1.0, // Default 1.0x
+  debounceDuration: 500,
+  fontMultiplier: 1.0,
 
   visualHapticPulse: false,
-
   language: 'ko',
 
   setHighContrast: (highContrast) => set({ highContrast, activePreset: 'default' }),
@@ -134,53 +107,71 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
 
   saveSettingsToCookie: () => {
     const state = get();
-    const settings = {
-      profileId: state.profileId,
-      fontMultiplier: state.fontMultiplier,
-      debounceDuration: state.debounceDuration,
-      highContrast: state.highContrast,
-      dyslexiaMode: state.dyslexiaMode,
-      debounceMode: state.debounceMode,
-      darkMode: state.darkMode,
-      colorBlindMode: state.colorBlindMode,
-      easyMode: state.easyMode,
-      hapticFeedback: state.hapticFeedback,
-      lowReachMode: state.lowReachMode,
-      activePreset: state.activePreset,
-      language: state.language,
-    };
-    setCookie('bf_a11y_settings', JSON.stringify(settings), 300); // 5 minutes expiration
+    accessibilityService.setCookie('bf_lang', state.language);
+    accessibilityService.setCookie('bf_disability_profile', state.profileId || '');
+    accessibilityService.setCookie('bf_active_preset', state.activePreset);
+    accessibilityService.setCookie('bf_high_contrast', state.highContrast ? 'true' : 'false');
+    accessibilityService.setCookie('bf_font_multiplier', state.fontMultiplier.toString());
+    accessibilityService.setCookie('bf_debounce_duration', state.debounceDuration.toString());
+    accessibilityService.setCookie('bf_dyslexia_mode', state.dyslexiaMode ? 'true' : 'false');
+    accessibilityService.setCookie('bf_debounce_mode', state.debounceMode ? 'true' : 'false');
+    accessibilityService.setCookie('bf_dark_mode', state.darkMode ? 'true' : 'false');
+    accessibilityService.setCookie('bf_color_blind_mode', state.colorBlindMode ? 'true' : 'false');
+    accessibilityService.setCookie('bf_easy_mode', state.easyMode ? 'true' : 'false');
+    accessibilityService.setCookie('bf_haptic_feedback', state.hapticFeedback ? 'true' : 'false');
+    accessibilityService.setCookie('bf_low_reach_mode', state.lowReachMode ? 'true' : 'false');
+    accessibilityService.setCookie('bf_setup_completed', 'true');
   },
 
   loadSettingsFromCookie: () => {
-    const saved = getCookie('bf_a11y_settings');
-    if (!saved) return false;
+    const setupCompleted = accessibilityService.getCookie('bf_setup_completed');
+    if (setupCompleted !== 'true') {
+      const savedLang = accessibilityService.getCookie('bf_lang') as AppLanguage | null;
+      if (savedLang) {
+        set({ language: savedLang });
+      }
+      return false;
+    }
+
     try {
-      const settings = JSON.parse(saved);
+      const language = (accessibilityService.getCookie('bf_lang') as AppLanguage) || 'ko';
+      const profileId = accessibilityService.getCookie('bf_disability_profile') || null;
+      const activePreset = (accessibilityService.getCookie('bf_active_preset') as A11yPreset) || 'default';
+      const highContrast = accessibilityService.getCookie('bf_high_contrast') === 'true';
+      const fontMultiplier = parseFloat(accessibilityService.getCookie('bf_font_multiplier') || '1.0');
+      const debounceDuration = parseInt(accessibilityService.getCookie('bf_debounce_duration') || '500', 10);
+      const dyslexiaMode = accessibilityService.getCookie('bf_dyslexia_mode') === 'true';
+      const debounceMode = accessibilityService.getCookie('bf_debounce_mode') === 'true';
+      const darkMode = accessibilityService.getCookie('bf_dark_mode') === 'true';
+      const colorBlindMode = accessibilityService.getCookie('bf_color_blind_mode') === 'true';
+      const easyMode = accessibilityService.getCookie('bf_easy_mode') === 'true';
+      const hapticFeedback = accessibilityService.getCookie('bf_haptic_feedback') !== 'false';
+      const lowReachMode = accessibilityService.getCookie('bf_low_reach_mode') === 'true';
+
       set({
-        profileId: settings.profileId || null,
-        fontMultiplier: settings.fontMultiplier || 1.0,
-        debounceDuration: settings.debounceDuration || 500,
-        highContrast: !!settings.highContrast,
-        dyslexiaMode: !!settings.dyslexiaMode,
-        debounceMode: !!settings.debounceMode,
-        darkMode: !!settings.darkMode,
-        colorBlindMode: !!settings.colorBlindMode,
-        easyMode: !!settings.easyMode,
-        hapticFeedback: !!settings.hapticFeedback,
-        lowReachMode: !!settings.lowReachMode,
-        activePreset: settings.activePreset || 'default',
-        language: settings.language || 'ko',
+        language,
+        profileId,
+        activePreset,
+        highContrast,
+        fontMultiplier,
+        debounceDuration,
+        dyslexiaMode,
+        debounceMode,
+        darkMode,
+        colorBlindMode,
+        easyMode,
+        hapticFeedback,
+        lowReachMode,
       });
       return true;
     } catch (e) {
-      console.error('Failed to parse a11y settings cookie', e);
+      console.error('Failed to load split a11y settings from cookies', e);
       return false;
     }
   },
 
   setPreset: (preset) => {
-    // Reset advanced states first
+    const config = accessibilityService.getPresetConfig(preset);
     set({
       dyslexiaMode: false,
       debounceMode: false,
@@ -191,62 +182,8 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
       lowReachMode: false,
       debounceDuration: 500,
       fontMultiplier: 1.0,
+      ...config,
     });
-
-    switch (preset) {
-      case 'visual':
-        set({
-          activePreset: 'visual',
-          highContrast: true,
-          fontScale: 'xlarge',
-          ttsEnabled: true,
-          reduceMotion: false,
-          fontMultiplier: 1.5,
-        });
-        break;
-      case 'hearing':
-        set({
-          activePreset: 'hearing',
-          highContrast: true,
-          fontScale: 'large',
-          ttsEnabled: false,
-          hapticFeedback: true,
-          reduceMotion: false,
-        });
-        break;
-      case 'mobility':
-        set({
-          activePreset: 'mobility',
-          fontScale: 'large',
-          highContrast: false,
-          ttsEnabled: true,
-          reduceMotion: false,
-          debounceMode: true,
-          debounceDuration: 500,
-        });
-        break;
-      case 'cognitive':
-        set({
-          activePreset: 'cognitive',
-          reduceMotion: true,
-          fontScale: 'large',
-          highContrast: false,
-          ttsEnabled: true,
-          easyMode: true,
-        });
-        break;
-      case 'default':
-      default:
-        set({
-          activePreset: 'default',
-          highContrast: false,
-          fontScale: 'normal',
-          ttsEnabled: false,
-          reduceMotion: false,
-          hapticFeedback: true,
-        });
-        break;
-    }
   },
 
   triggerVisualHaptic: () => {
@@ -256,27 +193,14 @@ export const useAccessibilityStore = create<AccessibilityState>((set, get) => ({
   },
 
   resetAll: () => {
-    // Clear cookie if resetting
-    if (typeof document !== 'undefined') {
-      document.cookie = 'bf_a11y_settings=; max-age=0; path=/';
-    }
+    accessibilityService.clearAllCookies();
+    const defaultConfig = accessibilityService.getPresetConfig('default');
     set({
-      highContrast: false,
-      fontScale: 'normal',
-      lowReachMode: false,
-      ttsEnabled: false,
-      reduceMotion: false,
-      hapticFeedback: true,
-      activePreset: 'default',
-      dyslexiaMode: false,
-      debounceMode: false,
-      darkMode: false,
-      switchAccessMode: false,
-      colorBlindMode: false,
-      easyMode: false,
       profileId: null,
       debounceDuration: 500,
       fontMultiplier: 1.0,
+      visualHapticPulse: false,
+      ...defaultConfig,
     });
   },
 }));

@@ -1,16 +1,32 @@
 import { useAccessibilityStore } from '@/store/useAccessibilityStore';
-import enToKo from '@/public/locales/en-to-ko.json';
+import ko from '@/public/locales/ko.json';
+import en from '@/public/locales/en.json';
+
+const dictionaries: Record<string, Record<string, string>> = {
+  ko,
+  en,
+};
 
 export function useTranslation() {
-  const language = useAccessibilityStore((state) => state.language);
+  const language = useAccessibilityStore((state) => state.language) || 'ko';
 
   const t = (key: string, replacements?: Record<string, string | number>) => {
-    let text = key;
-    if (language === 'ko') {
-      text = (enToKo as Record<string, string>)[key] || key;
+    if (!key) return '';
+
+    const currentDict = dictionaries[language] || dictionaries.ko;
+    const fallbackDict = language === 'en' ? dictionaries.ko : dictionaries.en;
+
+    let text = currentDict[key];
+
+    if (!text && language === 'en') {
+      text = dictionaries.en[key];
     }
 
-    if (replacements) {
+    if (!text) {
+      text = fallbackDict[key] || key;
+    }
+
+    if (replacements && text) {
       Object.entries(replacements).forEach(([k, v]) => {
         text = text.replaceAll(`{${k}}`, String(v));
       });
@@ -21,3 +37,4 @@ export function useTranslation() {
 
   return { t, language };
 }
+

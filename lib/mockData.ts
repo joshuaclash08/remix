@@ -1,42 +1,7 @@
-export interface ProductOption {
-  id: string;
-  name: string;
-  price: number;
-}
+import type { ProductOption, ProductOptionGroup, Product, CartItem } from '@/lib/types';
 
-export interface ProductOptionGroup {
-  id: string;
-  title: string;
-  required: boolean;
-  options: ProductOption[];
-}
+export type { ProductOption, ProductOptionGroup, Product, CartItem };
 
-export interface Product {
-  id: string;
-  name: string;
-  englishName: string;
-  price: number;
-  category: 'coffee' | 'beverage' | 'dessert' | 'food';
-  image: string;
-  description: string;
-  voiceDescription: string;
-  isPopular?: boolean;
-  isSoldOut?: boolean;
-  allergies?: string[];
-  optionGroups?: ProductOptionGroup[];
-}
-
-export interface CartItem {
-  cartItemId: string;
-  product: Product;
-  quantity: number;
-  selectedOptions: {
-    groupTitle: string;
-    optionName: string;
-    price: number;
-  }[];
-  totalItemPrice: number;
-}
 
 export const MOCK_CATEGORIES = [
   { id: 'all', name: '전체 메뉴', icon: '✨' },

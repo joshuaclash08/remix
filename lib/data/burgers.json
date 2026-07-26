@@ -1,0 +1,525 @@
+[
+  {
+    "id": "section-recommended",
+    "title": "추천 메뉴",
+    "description": "맥도날드에서 가장 사랑받는 대표 버거 메뉴입니다.",
+    "iconName": "Star",
+    "items": [
+      {
+        "id": "big-mac",
+        "nameKo": "빅맥",
+        "nameEn": "Big Mac",
+        "category": "burgers",
+        "subCategory": "beef",
+        "description": "100% 순 쇠고기 패티 두 장에 빅맥 특별 소스, 고소한 치즈, 신선한 양상추, 피클, 양파가 어우러진 시그니처 버거.",
+        "voiceDescription": "빅맥 버거. 가격 5,500원. 순 쇠고기 패티 두 장과 시그니처 소스가 들어간 대표 메뉴입니다.",
+        "price": 5500,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532397193.png",
+        "isNew": false,
+        "isRecommended": true,
+        "nutrition": {
+          "weightG": 223,
+          "caloriesKcal": 583,
+          "sugarG": 7,
+          "proteinG": 27,
+          "fatG": 23,
+          "sodiumMg": 1046
+        },
+        "allergens": [
+          "난류",
+          "우유",
+          "대두",
+          "밀",
+          "쇠고기"
+        ]
+      },
+      {
+        "id": "1955-burger",
+        "nameKo": "1955 버거",
+        "nameEn": "1955 Burger",
+        "category": "burgers",
+        "subCategory": "beef",
+        "description": "113g 두툼한 순 쇠고기 패티, 특별한 1955 소스, 베이컨, 그릴드 어니언이 오리지널 아메리칸 테이스트를 선사하는 버거.",
+        "voiceDescription": "1955 버거. 가격 6,400원. 두툼한 순 쇠고기 패티와 구운 양파가 들어간 버거입니다.",
+        "price": 6400,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532432924.png",
+        "isNew": false,
+        "isRecommended": true,
+        "nutrition": {
+          "weightG": 264,
+          "caloriesKcal": 572,
+          "sugarG": 14,
+          "proteinG": 29,
+          "fatG": 26,
+          "sodiumMg": 984
+        },
+        "allergens": [
+          "우유",
+          "대두",
+          "밀",
+          "돼지고기",
+          "쇠고기",
+          "토마토"
+        ]
+      },
+      {
+        "id": "mcspicy-shanghai",
+        "nameKo": "맥스파이시 상하이 버거",
+        "nameEn": "McSpicy Shanghai Burger",
+        "category": "burgers",
+        "subCategory": "chicken",
+        "description": "매콤한 시즈닝을 입힌 100% 닭가슴살 패티에 신선한 토마토와 양상추가 어우러진 매콤한 치킨 버거.",
+        "voiceDescription": "맥스파이시 상하이 버거. 가격 5,500원. 닭가슴살 패티와 토마토가 포함된 매콤한 치킨 버거입니다.",
+        "price": 5500,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532470701.png",
+        "isNew": false,
+        "isRecommended": true,
+        "nutrition": {
+          "weightG": 236,
+          "caloriesKcal": 494,
+          "sugarG": 6,
+          "proteinG": 24,
+          "fatG": 19,
+          "sodiumMg": 1104
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "닭고기",
+          "토마토"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "section-new",
+    "title": "신제품",
+    "description": "새롭게 출시된 맥도날드의 특별한 신메뉴를 만나보세요.",
+    "iconName": "Sparkles",
+    "items": [
+      {
+        "id": "mccrispy-deluxe",
+        "nameKo": "맥크리스피 디럭스 버거",
+        "nameEn": "McCrispy Deluxe Burger",
+        "category": "burgers",
+        "subCategory": "chicken",
+        "description": "100% 통닭다리살 케이준 패티, 고소한 포테이토 브리오쉬 번, 스페셜 스모키 소스가 만난 프리미엄 치킨 버거.",
+        "voiceDescription": "맥크리스피 디럭스 버거. 가격 6,800원. 바삭한 통닭다리살 패티와 브리오쉬 번의 프리미엄 치킨 버거입니다.",
+        "price": 6800,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1653526168536.png",
+        "isNew": true,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 266,
+          "caloriesKcal": 594,
+          "sugarG": 14,
+          "proteinG": 27,
+          "fatG": 27,
+          "sodiumMg": 1282
+        },
+        "allergens": [
+          "난류",
+          "우유",
+          "대두",
+          "밀",
+          "닭고기",
+          "토마토"
+        ]
+      },
+      {
+        "id": "mccrispy-classic",
+        "nameKo": "맥크리스피 클래식 버거",
+        "nameEn": "McCrispy Classic Burger",
+        "category": "burgers",
+        "subCategory": "chicken",
+        "description": "바삭한 100% 통닭다리살 패티와 치킨 전용 스모키 소스로 치킨 버거 본연의 맛을 살린 버거.",
+        "voiceDescription": "맥크리스피 클래식 버거. 가격 5,900원. 바삭한 통닭다리살 패티와 스모키 소스가 들어간 치킨 버거입니다.",
+        "price": 5900,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1653526084478.png",
+        "isNew": true,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 212,
+          "caloriesKcal": 584,
+          "sugarG": 12,
+          "proteinG": 24,
+          "fatG": 28,
+          "sodiumMg": 1140
+        },
+        "allergens": [
+          "난류",
+          "우유",
+          "대두",
+          "밀",
+          "닭고기"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "section-beef",
+    "title": "비프 / 불고기 버거",
+    "description": "진한 고기 풍미와 직화 향이 가득한 비프 및 불고기 버거 라인업.",
+    "iconName": "Beef",
+    "items": [
+      {
+        "id": "quarter-pounder-cheese",
+        "nameKo": "쿼터파운더 치즈",
+        "nameEn": "Quarter Pounder with Cheese",
+        "category": "burgers",
+        "subCategory": "beef",
+        "description": "가공하지 않은 1/4 파운드 100% 순 쇠고기 패티와 고소한 치즈 2장이 어우러진 쇠고기 버거의 정석.",
+        "voiceDescription": "쿼터파운더 치즈. 가격 5,500원. 두툼한 순 쇠고기 패티와 치즈 두 장이 들어간 버거입니다.",
+        "price": 5500,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532510255.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 198,
+          "caloriesKcal": 536,
+          "sugarG": 10,
+          "proteinG": 31,
+          "fatG": 27,
+          "sodiumMg": 1131
+        },
+        "allergens": [
+          "우유",
+          "대두",
+          "밀",
+          "쇠고기"
+        ]
+      },
+      {
+        "id": "double-quarter-pounder-cheese",
+        "nameKo": "더블 쿼터파운더 치즈",
+        "nameEn": "Double Quarter Pounder with Cheese",
+        "category": "burgers",
+        "subCategory": "beef",
+        "description": "1/4 파운드 순 쇠고기 패티 2장과 치즈 2장이 선사하는 두 배의 풍성한 고기 맛.",
+        "voiceDescription": "더블 쿼터파운더 치즈. 가격 7,400원. 쇠고기 패티 두 장과 치즈 두 장이 들어간 더블 버거입니다.",
+        "price": 7400,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532549247.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 275,
+          "caloriesKcal": 770,
+          "sugarG": 10,
+          "proteinG": 50,
+          "fatG": 46,
+          "sodiumMg": 1400
+        },
+        "allergens": [
+          "우유",
+          "대두",
+          "밀",
+          "쇠고기"
+        ]
+      },
+      {
+        "id": "bulgogi-burger",
+        "nameKo": "불고기 버거",
+        "nameEn": "Bulgogi Burger",
+        "category": "burgers",
+        "subCategory": "bulgogi",
+        "description": "한국인의 입맛에 딱 맞춘 진한 불고기 소스에 재운 돈육 패티와 신선한 양상추, 마요네즈의 달콤한 조화.",
+        "voiceDescription": "불고기 버거. 가격 3,100원. 달콤한 불고기 소스와 돈육 패티가 들어간 인기 버거입니다.",
+        "price": 3100,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532587522.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 166,
+          "caloriesKcal": 407,
+          "sugarG": 14,
+          "proteinG": 14,
+          "fatG": 19,
+          "sodiumMg": 669
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "돼지고기"
+        ]
+      },
+      {
+        "id": "double-bulgogi-burger",
+        "nameKo": "더블 불고기 버거",
+        "nameEn": "Double Bulgogi Burger",
+        "category": "burgers",
+        "subCategory": "bulgogi",
+        "description": "진한 불고기 소스의 패티가 2장, 고소한 치즈가 더해져 더욱 풍성하고 달콤한 불고기 버거.",
+        "voiceDescription": "더블 불고기 버거. 가격 4,500원. 불고기 패티 두 장과 치즈가 들어간 달콤한 버거입니다.",
+        "price": 4500,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532626154.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 235,
+          "caloriesKcal": 636,
+          "sugarG": 15,
+          "proteinG": 26,
+          "fatG": 34,
+          "sodiumMg": 1024
+        },
+        "allergens": [
+          "난류",
+          "우유",
+          "대두",
+          "밀",
+          "돼지고기"
+        ]
+      },
+      {
+        "id": "egg-bulgogi-burger",
+        "nameKo": "에그 불고기 버거",
+        "nameEn": "Egg Bulgogi Burger",
+        "category": "burgers",
+        "subCategory": "bulgogi",
+        "description": "불고기 버거에 국내산 1+등급 신선한 계란이 쏙 들어가 담백함과 영양을 더한 버거.",
+        "voiceDescription": "에그 불고기 버거. 가격 3,900원. 불고기 버거에 국내산 신선한 계란이 추가된 버거입니다.",
+        "price": 3900,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532661858.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 212,
+          "caloriesKcal": 492,
+          "sugarG": 14,
+          "proteinG": 21,
+          "fatG": 23,
+          "sodiumMg": 775
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "돼지고기"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "section-chicken",
+    "title": "치킨 버거",
+    "description": "바삭하고 담백한 치킨 패티로 즐기는 다채로운 치킨 버거 라인업.",
+    "iconName": "Utensils",
+    "items": [
+      {
+        "id": "mcchicken",
+        "nameKo": "맥치킨",
+        "nameEn": "McChicken",
+        "category": "burgers",
+        "subCategory": "chicken",
+        "description": "바삭하고 고소한 치킨 패티와 알싸한 화이트 마요 소스가 어우러진 고소한 치킨 버거.",
+        "voiceDescription": "맥치킨 버거. 가격 3,500원. 바삭한 치킨 패티와 화이트 마요 소스가 어우러진 버거입니다.",
+        "price": 3500,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532703848.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 168,
+          "caloriesKcal": 483,
+          "sugarG": 7,
+          "proteinG": 17,
+          "fatG": 23,
+          "sodiumMg": 820
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "닭고기"
+        ]
+      },
+      {
+        "id": "mcchicken-mozzarella",
+        "nameKo": "맥치킨 모짜렐라",
+        "nameEn": "McChicken Mozzarella",
+        "category": "burgers",
+        "subCategory": "chicken",
+        "description": "든든한 맥치킨에 고소한 골든 모짜렐라 치즈 스틱 2장과 매콤한 아라비아따 소스가 추가된 든든한 버거.",
+        "voiceDescription": "맥치킨 모짜렐라. 가격 5,000원. 모짜렐라 치즈스틱 두 장과 아라비아따 소스가 들어간 치킨 버거입니다.",
+        "price": 5000,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532742911.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 242,
+          "caloriesKcal": 694,
+          "sugarG": 11,
+          "proteinG": 26,
+          "fatG": 33,
+          "sodiumMg": 1424
+        },
+        "allergens": [
+          "난류",
+          "우유",
+          "대두",
+          "밀",
+          "닭고기"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "section-seafood",
+    "title": "해산물 / 슈림프 버거",
+    "description": "탱글탱글한 통새우 살이 살아있는 프리미엄 해산물 버거 라인업.",
+    "iconName": "Fish",
+    "items": [
+      {
+        "id": "supreme-shrimp-burger",
+        "nameKo": "슈슈 버거",
+        "nameEn": "Supreme Shrimp Burger",
+        "category": "burgers",
+        "subCategory": "seafood",
+        "description": "탱글탱글한 통새우 살이 살아있는 새우 패티에 매콤달콤한 스파이시 일렉션 소스가 어우러진 버거.",
+        "voiceDescription": "슈슈 버거. 가격 4,700원. 통새우 패티와 매콤달콤 소스가 들어간 새우 버거입니다.",
+        "price": 4700,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532785532.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 224,
+          "caloriesKcal": 409,
+          "sugarG": 13,
+          "proteinG": 15,
+          "fatG": 14,
+          "sodiumMg": 827
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "새우",
+          "토마토"
+        ]
+      },
+      {
+        "id": "shrimp-beef-burger",
+        "nameKo": "슈비 버거",
+        "nameEn": "Shrimp & Beef Burger",
+        "category": "burgers",
+        "subCategory": "seafood",
+        "description": "통새우 패티와 100% 순 쇠고기 패티가 만나 육해공의 맛을 한 번에 즐길 수 있는 환상의 버거.",
+        "voiceDescription": "슈비 버거. 가격 5,800원. 통새우 패티와 순 쇠고기 패티가 함께 들어간 버거입니다.",
+        "price": 5800,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532822152.png",
+        "isNew": false,
+        "isRecommended": false,
+        "nutrition": {
+          "weightG": 269,
+          "caloriesKcal": 563,
+          "sugarG": 15,
+          "proteinG": 22,
+          "fatG": 24,
+          "sodiumMg": 1032
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "새우",
+          "쇠고기",
+          "토마토"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "section-sets",
+    "title": "세트 메뉴",
+    "description": "버거와 후렌치 후라이, 음료가 함께 제공되는 실속 세트 구성.",
+    "iconName": "UtensilsCrossed",
+    "items": [
+      {
+        "id": "big-mac-meal",
+        "nameKo": "빅맥 세트",
+        "nameEn": "Big Mac Meal",
+        "category": "sets",
+        "subCategory": "beef",
+        "description": "빅맥 버거 + 바삭한 후렌치 후라이 (M) + 시원한 코카콜라 (M) 구성의 대표 세트.",
+        "voiceDescription": "빅맥 세트. 가격 7,200원. 빅맥 버거, 후렌치 후라이 M, 코카콜라 M 세트 구성입니다.",
+        "price": 7200,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532397193.png",
+        "isNew": false,
+        "isRecommended": true,
+        "nutrition": {
+          "weightG": 640,
+          "caloriesKcal": 915,
+          "sugarG": 46,
+          "proteinG": 30,
+          "fatG": 38,
+          "sodiumMg": 1350
+        },
+        "allergens": [
+          "난류",
+          "우유",
+          "대두",
+          "밀",
+          "쇠고기"
+        ]
+      },
+      {
+        "id": "1955-meal",
+        "nameKo": "1955 버거 세트",
+        "nameEn": "1955 Burger Meal",
+        "category": "sets",
+        "subCategory": "beef",
+        "description": "1955 버거 + 후렌치 후라이 (M) + 코카콜라 (M) 세트.",
+        "voiceDescription": "1955 버거 세트. 가격 8,000원. 1955 버거, 후렌치 후라이 M, 코카콜라 M 세트 구성입니다.",
+        "price": 8000,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532432924.png",
+        "isNew": false,
+        "isRecommended": true,
+        "nutrition": {
+          "weightG": 681,
+          "caloriesKcal": 904,
+          "sugarG": 53,
+          "proteinG": 32,
+          "fatG": 41,
+          "sodiumMg": 1288
+        },
+        "allergens": [
+          "우유",
+          "대두",
+          "밀",
+          "돼지고기",
+          "쇠고기",
+          "토마토"
+        ]
+      },
+      {
+        "id": "shanghai-meal",
+        "nameKo": "맥스파이시 상하이 버거 세트",
+        "nameEn": "McSpicy Shanghai Meal",
+        "category": "sets",
+        "subCategory": "chicken",
+        "description": "맥스파이시 상하이 버거 + 후렌치 후라이 (M) + 코카콜라 (M) 세트.",
+        "voiceDescription": "맥스파이시 상하이 버거 세트. 가격 7,200원. 상하이 버거, 후렌치 후라이 M, 코카콜라 M 세트 구성입니다.",
+        "price": 7200,
+        "imageUrl": "https://www.mcdonalds.co.kr/upload/product/main_1587532470701.png",
+        "isNew": false,
+        "isRecommended": true,
+        "nutrition": {
+          "weightG": 653,
+          "caloriesKcal": 826,
+          "sugarG": 45,
+          "proteinG": 27,
+          "fatG": 34,
+          "sodiumMg": 1408
+        },
+        "allergens": [
+          "난류",
+          "대두",
+          "밀",
+          "닭고기",
+          "토마토"
+        ]
+      }
+    ]
+  }
+]

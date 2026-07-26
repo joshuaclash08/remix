@@ -31,24 +31,24 @@ export function SuccessAnimation() {
         exit={{ opacity: 0, scale: 0.95 }}
         className="w-full flex flex-col justify-center gap-8 max-w-md mx-auto"
       >
-        <h2 className="text-4xl font-extrabold text-slate-900 text-center">{t("Order Complete")}</h2>
+        <h2 className="text-3xl font-extrabold text-slate-900 text-center tracking-tight">{t("Order Complete")}</h2>
 
-        {/* Massive Order Number Card (Toss-style) */}
-        <div className="py-12 bg-yellow-400 rounded-3xl text-center shadow-[0_12px_40px_rgba(250,204,21,0.25)] border border-yellow-500/20">
-          <span className="text-yellow-900 font-bold block text-lg">{t("Order Number")}</span>
-          <span className="text-7xl font-black tracking-wider block mt-3 text-slate-950">
+        {/* Order Number Card (#3182f6 Toss-style) */}
+        <div className="py-10 bg-[#3182f6] rounded-2xl text-center shadow-md shadow-blue-500/20">
+          <span className="text-blue-100 font-bold block text-sm">{t("Order Number")}</span>
+          <span className="text-6xl font-black tracking-wider block mt-2 text-white">
             {lastOrderNumber}
           </span>
         </div>
 
-        {/* Reset button (Toss-style) */}
+        {/* Reset button */}
         <motion.button
-          whileTap={{ scale: 0.95 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => {
             vibrate(40);
             resetOrder();
           }}
-          className="w-full py-5 rounded-[24px] bg-slate-900 hover:bg-slate-800 text-white font-bold text-xl transition-all shadow-[0_8px_24px_rgba(0,0,0,0.15)] cursor-pointer flex items-center justify-center"
+          className="w-full h-14 rounded-2xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-extrabold text-base sm:text-lg transition-all shadow-md shadow-blue-500/20 cursor-pointer flex items-center justify-center"
           aria-label={t("Go back to the start screen")}
         >
           {t("Start Over")}

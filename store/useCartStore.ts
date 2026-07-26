@@ -1,20 +1,15 @@
 import { create } from 'zustand';
-import { Product, CartItem } from '@/lib/mockData';
-
-interface StoreInfo {
-  id: string;
-  name: string;
-  table: string;
-  nfcTagId: string;
-}
+import type { Product, CartItem, StoreInfo, OrderStatus, OrderReceipt } from '@/lib/types';
+import { orderService } from '@/lib/services';
 
 interface CartState {
   storeInfo: StoreInfo;
   items: CartItem[];
   isVoiceModalOpen: boolean;
   isQrModalOpen: boolean;
-  orderStatus: 'idle' | 'processing' | 'completed';
+  orderStatus: OrderStatus;
   lastOrderNumber: string | null;
+  lastReceipt: OrderReceipt | null;
 
   // Actions
   setStoreInfo: (info: StoreInfo) => void;
@@ -27,16 +22,16 @@ interface CartState {
   clearCart: () => void;
   setVoiceModalOpen: (open: boolean) => void;
   setQrModalOpen: (open: boolean) => void;
-  placeOrder: () => Promise<void>;
+  placeOrder: (orderType?: 'takeout' | 'table') => Promise<void>;
   resetOrder: () => void;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
   storeInfo: {
-    id: 'gangnam-01',
-    name: '스마트 카페 강남점 (배리어프리 전용)',
-    table: '04번 테이블',
-    nfcTagId: 'NFC-TAG-8829',
+    id: 'mcd-gangnam',
+    name: '맥도날드 강남점',
+    table: '03번 테이블',
+    nfcTagId: 'NFC-MCD-GN03',
   },
   items: [
     {
@@ -63,6 +58,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   isQrModalOpen: false,
   orderStatus: 'idle',
   lastOrderNumber: null,
+  lastReceipt: null,
 
   setStoreInfo: (storeInfo) => set({ storeInfo }),
 
@@ -116,13 +112,13 @@ export const useCartStore = create<CartState>((set, get) => ({
   setVoiceModalOpen: (open) => set({ isVoiceModalOpen: open }),
   setQrModalOpen: (open) => set({ isQrModalOpen: open }),
 
-  placeOrder: async () => {
+  placeOrder: async (orderType: 'takeout' | 'table' = 'table') => {
     set({ orderStatus: 'processing' });
-    await new Promise((res) => setTimeout(res, 1500));
-    const randomOrderNo = `B-${Math.floor(100 + Math.random() * 900)}`;
+    const receipt = await orderService.submitOrder(get().storeInfo, orderType, get().items);
     set({
       orderStatus: 'completed',
-      lastOrderNumber: randomOrderNo,
+      lastOrderNumber: receipt.orderNumber,
+      lastReceipt: receipt,
     });
   },
 
@@ -131,6 +127,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       orderStatus: 'idle',
       items: [],
       lastOrderNumber: null,
+      lastReceipt: null,
     });
   },
 }));

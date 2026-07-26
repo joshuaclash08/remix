@@ -13,62 +13,20 @@ import { useAccessibilityStore } from '@/store/useAccessibilityStore';
  *   `Speech.speak(text, { language: 'ko-KR' })`
  */
 export function useSpeech() {
-  const [speakingText, setSpeakingText] = useState<string | null>(null);
-  const ttsEnabled = useAccessibilityStore((state) => state.ttsEnabled);
-
-  const speak = useCallback(
-    (text: string, force: boolean = false) => {
-      if (!ttsEnabled && !force) return;
-      if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-
-      try {
-        // Cancel any ongoing speech
-        window.speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ko-KR';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-
-        utterance.onstart = () => {
-          setSpeakingText(text);
-        };
-
-        utterance.onend = () => {
-          setSpeakingText(null);
-        };
-
-        utterance.onerror = () => {
-          setSpeakingText(null);
-        };
-
-        window.speechSynthesis.speak(utterance);
-      } catch (e) {
-        console.warn('SpeechSynthesis error:', e);
-        setSpeakingText(null);
-      }
-    },
-    [ttsEnabled]
-  );
-
-  const stop = useCallback(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setSpeakingText(null);
-    }
+  // Web TTS disabled in favor of native OS VoiceOver / TalkBack to prevent audio collisions
+  const speak = useCallback((text: string, force: boolean = false) => {
+    // No-op: OS VoiceOver / TalkBack handles reading via WAI-ARIA
   }, []);
 
-  useEffect(() => {
-    return () => {
-      stop();
-    };
-  }, [stop]);
+  const stop = useCallback(() => {
+    // No-op
+  }, []);
 
   return {
     speak,
     stop,
-    speakingText,
-    isSpeaking: !!speakingText,
-    isSupported: typeof window !== 'undefined' && 'speechSynthesis' in window,
+    speakingText: null,
+    isSpeaking: false,
+    isSupported: false,
   };
 }
