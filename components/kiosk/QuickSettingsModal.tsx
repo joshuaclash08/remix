@@ -24,11 +24,18 @@ export function QuickSettingsModal({ isOpen, onClose, onResetToStep1 }: Props) {
     colorBlindMode,
     dyslexiaMode,
     ttsEnabled,
+    easyMode,
+    fontScale,
+    reduceMotion,
     setHighContrast,
     setDarkMode,
     setColorBlindMode,
     setDyslexiaMode,
     setTtsEnabled,
+    setEasyMode,
+    setFontScale,
+    setFontMultiplier,
+    setReduceMotion,
     resetAll,
   } = useAccessibilityStore();
 
@@ -56,13 +63,15 @@ export function QuickSettingsModal({ isOpen, onClose, onResetToStep1 }: Props) {
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4 shrink-0">
-              <div className="flex items-center gap-1.5">
-                <SlidersHorizontal className="w-4 h-4 text-[#3182f6]" />
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-800 font-bold">
+                  <SlidersHorizontal className="w-4 h-4 text-[#3182f6]" />
+                </div>
                 <h3 className="text-sm font-black text-slate-900">{t("Setting")}</h3>
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer border-none"
+                className="p-2 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer border-none flex items-center justify-center min-h-[36px] min-w-[36px]"
                 aria-label={t("Close")}
               >
                 <X className="w-4 h-4" />
@@ -70,12 +79,59 @@ export function QuickSettingsModal({ isOpen, onClose, onResetToStep1 }: Props) {
             </div>
 
             {/* Setting toggles list */}
-            <div className="flex-1 overflow-y-auto space-y-3.5 pr-0.5 mb-4">
-              {/* 1. 고대비 */}
+            <div className="flex-1 overflow-y-auto space-y-3 pr-0.5 mb-4">
+              {/* 1. 쉬운 주문 모드 (Easy Mode) */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#3182f6]/10 border border-[#3182f6]/30">
+                <div>
+                  <span className="text-xs font-black text-slate-900 flex items-center gap-1">
+                    <span>쉬운 주문 모드</span>
+                    <span className="text-[10px] bg-[#3182f6] text-white px-1.5 py-0.2 rounded font-bold">추천</span>
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium block mt-0.5">큰 사진, 쉬운 단어 설명, 화면당 4~6개 항목</span>
+                </div>
+                <button
+                  onClick={() => {
+                    vibrate(30);
+                    setEasyMode(!easyMode);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl font-black text-xs cursor-pointer transition-colors ${
+                    easyMode ? 'bg-[#3182f6] text-white border-none' : 'bg-slate-200 text-slate-700 border-none'
+                  }`}
+                >
+                  {easyMode ? 'ON' : 'OFF'}
+                </button>
+              </div>
+
+              {/* 2. 글자 크기 & 자간 */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div>
-                  <span className="text-xs font-bold text-slate-900">{t("High Contrast Mode")}</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">{t("Maximize visual contrast")}</span>
+                  <span className="text-xs font-bold text-slate-900">글자 크기 및 자간</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">화면의 텍스트 크기와 간격 맞춤 설정</span>
+                </div>
+                <div className="flex items-center gap-1 bg-slate-200 p-0.5 rounded-xl">
+                  {(['normal', 'large', 'xlarge'] as const).map((scale) => (
+                    <button
+                      key={scale}
+                      onClick={() => {
+                        vibrate(20);
+                        setFontScale(scale);
+                        setFontMultiplier(scale === 'normal' ? 1.0 : scale === 'large' ? 1.25 : 1.5);
+                      }}
+                      className={`px-2 py-1 rounded-lg text-[10px] font-black cursor-pointer border-none ${
+                        fontScale === scale ? 'bg-[#3182f6] text-white' : 'text-slate-700 bg-transparent'
+                      }`}
+                    >
+                      {scale === 'normal' ? '보통' : scale === 'large' ? '크게' : '매우크게'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. 고대비 테마 */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div>
+                  <span className="text-xs font-bold text-slate-900">고대비 테마</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">명암비를 최고 수준으로 상향</span>
                 </div>
                 <button
                   onClick={() => {
@@ -90,68 +146,30 @@ export function QuickSettingsModal({ isOpen, onClose, onResetToStep1 }: Props) {
                 </button>
               </div>
 
-              {/* 2. 다크모드 */}
+              {/* 4. 애니메이션 끄기 */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div>
-                  <span className="text-xs font-bold text-slate-900">{t("Dark Mode")}</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">{t("Prevent screen glare")}</span>
+                  <span className="text-xs font-bold text-slate-900">애니메이션 끄기</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">화면 흔들림 및 시각적 움직임 최소화</span>
                 </div>
                 <button
                   onClick={() => {
                     vibrate(20);
-                    setDarkMode(!darkMode);
+                    setReduceMotion(!reduceMotion);
                   }}
                   className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-colors ${
-                    darkMode ? 'bg-[#3182f6] text-white border-none' : 'bg-slate-200 text-slate-700 border-none'
+                    reduceMotion ? 'bg-[#3182f6] text-white border-none' : 'bg-slate-200 text-slate-700 border-none'
                   }`}
                 >
-                  {darkMode ? 'ON' : 'OFF'}
+                  {reduceMotion ? 'ON' : 'OFF'}
                 </button>
               </div>
 
-              {/* 3. 색각지원 */}
+              {/* 5. 오디오 낭독 기본값 */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <div>
-                  <span className="text-xs font-bold text-slate-900">{t("Color Blind Assist")}</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">{t("Assist users with color vision deficiency")}</span>
-                </div>
-                <button
-                  onClick={() => {
-                    vibrate(20);
-                    setColorBlindMode(!colorBlindMode);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-colors ${
-                    colorBlindMode ? 'bg-[#3182f6] text-white border-none' : 'bg-slate-200 text-slate-700 border-none'
-                  }`}
-                >
-                  {colorBlindMode ? 'ON' : 'OFF'}
-                </button>
-              </div>
-
-              {/* 4. 난독증 보완 */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <div>
-                  <span className="text-xs font-bold text-slate-900">{t("Dyslexia Font Mode")}</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">{t("Increase letter and line spacing")}</span>
-                </div>
-                <button
-                  onClick={() => {
-                    vibrate(20);
-                    setDyslexiaMode(!dyslexiaMode);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-xs cursor-pointer transition-colors ${
-                    dyslexiaMode ? 'bg-[#3182f6] text-white border-none' : 'bg-slate-200 text-slate-700 border-none'
-                  }`}
-                >
-                  {dyslexiaMode ? 'ON' : 'OFF'}
-                </button>
-              </div>
-
-              {/* 5. 음성 안내 TTS */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <div>
-                  <span className="text-xs font-bold text-slate-900">{t("Voice Screen Reader")}</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">{t("Read out menu selections")}</span>
+                  <span className="text-xs font-bold text-slate-900">오디오 낭독 기본값</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">쉬운말 설명을 자동으로 낭독</span>
                 </div>
                 <button
                   onClick={() => {

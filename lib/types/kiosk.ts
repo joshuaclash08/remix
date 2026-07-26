@@ -20,6 +20,7 @@ export interface Product {
   image: string;
   description: string;
   voiceDescription: string;
+  easyDescription?: string;
   isPopular?: boolean;
   isSoldOut?: boolean;
   allergies?: string[];
@@ -62,6 +63,7 @@ export interface MenuItem {
   subCategory?: string;
   description: string;
   voiceDescription?: string;
+  easyDescription?: string;
   price: number;
   imageUrl: string;
   isNew?: boolean;
@@ -97,10 +99,12 @@ export interface OrderReceipt {
 }
 
 export interface VoiceIntentResult {
-  intent: 'add_to_cart' | 'clear_cart' | 'checkout' | 'query_allergens' | 'unknown';
+  intent: 'add_to_cart' | 'recommendation' | 'clear_cart' | 'checkout' | 'query_allergens' | 'unknown';
   matchedProduct?: Product;
   matchedQuantity?: number;
   matchedOptions?: { groupTitle: string; optionName: string; price: number }[];
+  aiResponseText?: string;
+  recommendedProducts?: Product[];
   feedbackMessage: string;
 }
 

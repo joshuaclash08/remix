@@ -128,6 +128,7 @@ export const mapBurgerToProduct = (item: MenuItem): Product => {
     image: item.imageUrl,
     description: item.description,
     voiceDescription: item.voiceDescription || `${item.nameKo}, 가격 ${item.price.toLocaleString()}원`,
+    easyDescription: item.easyDescription || item.voiceDescription || `${item.nameKo}, 가격 ${item.price.toLocaleString()}원. ${item.description}`,
     isPopular: item.isRecommended || item.isNew,
     allergies: item.allergens,
     optionGroups: isSet ? [

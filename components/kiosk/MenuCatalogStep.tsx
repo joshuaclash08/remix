@@ -7,7 +7,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { useSpeech } from '@/hooks/useSpeech';
 import { useAccessibilityStore } from '@/store/useAccessibilityStore';
 import { 
-  Store as StoreIcon, Mic, Sliders, MapPin, 
+  Store as StoreIcon, Mic, Sliders, MapPin, ShoppingBag,
   ChevronRight, Sparkles, Star, Beef, Utensils, Fish, UtensilsCrossed 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -33,6 +33,8 @@ interface Props {
   onResetToStep1: () => void;
 }
 
+import { EasyCatalogView } from '@/components/kiosk/EasyCatalogView';
+
 export function MenuCatalogStep({
   activeStore,
   tableId,
@@ -41,11 +43,13 @@ export function MenuCatalogStep({
   onSelectOrderType,
   onResetToStep1,
 }: Props) {
-  const { placeOrder, orderStatus, setVoiceModalOpen } = useCartStore();
+  const { items, toggleCartDrawer, placeOrder, orderStatus, setVoiceModalOpen } = useCartStore();
   const { vibrate } = useHaptics();
   const { speak } = useSpeech();
-  const { reduceMotion } = useAccessibilityStore();
+  const { reduceMotion, easyMode } = useAccessibilityStore();
   const { t } = useTranslation();
+
+  const totalItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('burgers');
   const [activeSubSectionId, setActiveSubSectionId] = useState<string>('');
@@ -194,7 +198,7 @@ export function MenuCatalogStep({
       </div>
 
       {/* 2. Main content area: Category Tab & Product Grid */}
-      <div className="flex-1 w-full flex flex-col overflow-hidden px-4 pt-3 pb-24">
+      <div className="flex-1 w-full flex flex-col overflow-hidden px-4 pt-3 pb-4">
         <CategoryTab 
           selectedCategory={selectedCategory} 
           onSelectCategory={(catId) => {
@@ -208,11 +212,19 @@ export function MenuCatalogStep({
 
         <div 
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto space-y-8 pr-1 phone-scroll"
+          className="flex-1 overflow-y-auto space-y-8 pr-1 pb-28 phone-scroll"
           role="feed"
           aria-busy="false"
         >
-          {sections.length > 0 ? (
+          {easyMode ? (
+            <EasyCatalogView
+              products={menuService.getAllProducts(activeStore.id)}
+              onSelectProduct={(prod) => {
+                vibrate(40);
+                setSelectedProduct(prod);
+              }}
+            />
+          ) : sections.length > 0 ? (
             sections.map((section) => (
               <div 
                 key={section.id} 
@@ -254,48 +266,63 @@ export function MenuCatalogStep({
         </div>
       </div>
 
-      {/* 3. Compact Liquid Glass Floating Bottom Navigation Bar */}
+      {/* 3. Compact Light Glass Floating Bottom Navigation Bar */}
       <nav 
-        className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-64px)] max-w-[285px] h-[60px] bg-slate-950/85 backdrop-blur-2xl text-white border border-white/20 rounded-full shadow-[0_12px_36px_rgba(0,0,0,0.35)] flex items-center justify-around z-30 select-none px-2.5"
+        className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[340px] h-[60px] bg-white/95 backdrop-blur-2xl text-slate-900 border border-slate-200/90 rounded-full shadow-[0_10px_32px_rgba(0,0,0,0.12)] flex items-center justify-between z-30 select-none px-2"
         aria-label="Main Navigation"
       >
-        <DebounceButton
-          onDebouncedClick={onResetKioskFlow}
-          className="flex flex-col items-center justify-center w-[72px] h-[48px] rounded-full text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer border-none bg-transparent active:scale-95 transition-all"
-          aria-label={t("Store")}
-        >
-          <StoreIcon className="w-4.5 h-4.5 text-slate-200" />
-          <span className="text-[10px] font-extrabold mt-0.5 text-slate-200">{t('Store')}</span>
-        </DebounceButton>
-
+        {/* Left: AI Voice Order */}
         <DebounceButton
           onDebouncedClick={() => {
             vibrate(40);
             setVoiceModalOpen(true);
           }}
-          className="flex flex-col items-center justify-center w-[72px] h-[48px] rounded-full text-blue-400 hover:text-blue-300 hover:bg-white/10 cursor-pointer border-none bg-transparent active:scale-95 transition-all"
-          aria-label={t("AI Voice Order")}
+          className="flex flex-col items-center justify-center min-w-[50px] h-[48px] rounded-full text-[#3182f6] hover:bg-blue-50 cursor-pointer border-none bg-transparent active:scale-95 transition-all"
+          aria-label="AI 음성 주문"
         >
-          <Mic className="w-4.5 h-4.5 text-blue-400 animate-pulse" />
-          <span className="text-[10px] font-extrabold mt-0.5 text-blue-300">{t('AI')}</span>
+          <Mic className="w-4.5 h-4.5 text-[#3182f6] animate-pulse" />
+          <span className="text-[10px] font-black mt-0.5 text-[#3182f6]">AI 주문</span>
         </DebounceButton>
 
+        {/* Center: Wide Cart Button with Number BEFORE Icon & Tight Margin */}
+        <DebounceButton
+          onDebouncedClick={() => {
+            vibrate(40);
+            if (totalItemCount > 0) {
+              placeOrder(orderType);
+            } else {
+              speak('장바구니가 비어 있습니다. 메뉴를 담아 주세요.');
+            }
+          }}
+          className={`flex items-center justify-center gap-1.5 px-3 py-2 h-[44px] rounded-full font-black text-xs cursor-pointer border-none transition-all shadow-xs active:scale-95 flex-1 max-w-[175px] mx-0.5 ${
+            totalItemCount > 0
+              ? 'bg-[#3182f6] hover:bg-[#2b70d4] text-white shadow-blue-500/20'
+              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+          }`}
+          aria-label={`장바구니 ${totalItemCount}개 항목. 선택 시 주문하기`}
+        >
+          {totalItemCount > 0 && (
+            <span className="font-black text-sm text-white shrink-0">
+              {totalItemCount}
+            </span>
+          )}
+          <ShoppingBag className={`w-4 h-4 shrink-0 ${totalItemCount > 0 ? 'text-white fill-current' : 'text-slate-600'}`} />
+          <span className="truncate font-black">장바구니</span>
+        </DebounceButton>
+
+        {/* Right: Setting */}
         <DebounceButton
           onDebouncedClick={() => {
             vibrate(30);
             setIsQuickSettingsOpen(true);
           }}
-          className="flex flex-col items-center justify-center w-[72px] h-[48px] rounded-full text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer border-none bg-transparent active:scale-95 transition-all"
-          aria-label={t("Setting")}
+          className="flex flex-col items-center justify-center min-w-[50px] h-[48px] rounded-full text-slate-700 hover:text-slate-900 hover:bg-slate-100 cursor-pointer border-none bg-transparent active:scale-95 transition-all"
+          aria-label="설정"
         >
-          <Sliders className="w-4.5 h-4.5 text-slate-200" />
-          <span className="text-[10px] font-extrabold mt-0.5 text-slate-200">{t('Setting')}</span>
+          <Sliders className="w-4.5 h-4.5 text-slate-700" />
+          <span className="text-[10px] font-black mt-0.5 text-slate-700">설정</span>
         </DebounceButton>
       </nav>
-
-
-      {/* Cart Drawer */}
-      <OrderSummaryDrawer onCheckout={() => placeOrder(orderType)} />
 
       {/* Success Modal */}
       {orderStatus === 'completed' && <SuccessAnimation />}

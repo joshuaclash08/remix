@@ -7,6 +7,7 @@ interface CartState {
   items: CartItem[];
   isVoiceModalOpen: boolean;
   isQrModalOpen: boolean;
+  isCartDrawerExpanded: boolean;
   orderStatus: OrderStatus;
   lastOrderNumber: string | null;
   lastReceipt: OrderReceipt | null;
@@ -22,6 +23,8 @@ interface CartState {
   clearCart: () => void;
   setVoiceModalOpen: (open: boolean) => void;
   setQrModalOpen: (open: boolean) => void;
+  setCartDrawerExpanded: (expanded: boolean) => void;
+  toggleCartDrawer: () => void;
   placeOrder: (orderType?: 'takeout' | 'table') => Promise<void>;
   resetOrder: () => void;
 }
@@ -56,6 +59,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   ],
   isVoiceModalOpen: false,
   isQrModalOpen: false,
+  isCartDrawerExpanded: false,
   orderStatus: 'idle',
   lastOrderNumber: null,
   lastReceipt: null,
@@ -111,6 +115,8 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   setVoiceModalOpen: (open) => set({ isVoiceModalOpen: open }),
   setQrModalOpen: (open) => set({ isQrModalOpen: open }),
+  setCartDrawerExpanded: (expanded) => set({ isCartDrawerExpanded: expanded }),
+  toggleCartDrawer: () => set({ isCartDrawerExpanded: !get().isCartDrawerExpanded }),
 
   placeOrder: async (orderType: 'takeout' | 'table' = 'table') => {
     set({ orderStatus: 'processing' });

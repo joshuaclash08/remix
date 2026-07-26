@@ -31,7 +31,8 @@ export function MenuCard({ product, onSelectProduct }: Props) {
   const handleVoiceRead = (e: React.MouseEvent) => {
     e.stopPropagation();
     vibrate(30);
-    speak(product.voiceDescription || `${productName}, ${formattedPrice}`, true);
+    const textToRead = product.easyDescription || product.voiceDescription || `${productName}, 가격 ${formattedPrice}. ${product.description}`;
+    speak(textToRead, true);
   };
 
   return (
@@ -41,45 +42,60 @@ export function MenuCard({ product, onSelectProduct }: Props) {
       onClick={handleCardClick}
       className={`group relative overflow-hidden rounded-2xl bg-white border transition-all cursor-pointer flex flex-col justify-between p-3.5 shadow-sm hover:border-[#3182f6] ${
         highContrast ? 'border-2 border-black text-black' : 'border-slate-200/90 hover:border-[#3182f6]'
-      } ${lowReachMode ? 'min-h-[200px]' : ''}`}
+      } ${lowReachMode ? 'min-h-[210px]' : ''}`}
       role="button"
-      aria-label={`${productName}, ${formattedPrice}`}
+      tabIndex={0}
+      aria-label={`${productName}, ${formattedPrice}. 선택하거나 장바구니에 담으려면 두 번 탭하세요.`}
     >
-      {/* Best Badge */}
-      {product.isPopular && (
-        <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#3182f6] text-white font-black text-[11px] shadow-sm">
-          <Flame className="w-3.5 h-3.5 fill-white text-white" />
-          <span>BEST</span>
-        </div>
-      )}
+      {/* Top Bar: Badge (Information: Warm Amber) & Voice Reader Button (Action/Audio: Light Pill) */}
+      <div className="flex items-center justify-between mb-2.5 min-h-[32px] z-10">
+        {/* Best Badge - Information Color (Warm Amber/Rose, distinct from Action Blue) */}
+        {product.isPopular ? (
+          <div 
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 text-white font-black text-[11px] shadow-2xs"
+            aria-label="인기 추천 메뉴"
+          >
+            <Flame className="w-3.5 h-3.5 fill-white text-white" />
+            <span>인기</span>
+          </div>
+        ) : (
+          <div /> // Spacer
+        )}
 
-      {/* Voice Read Button */}
-      <button
-        onClick={handleVoiceRead}
-        className="absolute top-2.5 right-2.5 z-10 p-2 rounded-xl bg-white/90 backdrop-blur-xs hover:bg-blue-50 text-slate-700 transition-all border border-slate-200 shadow-sm cursor-pointer active:scale-95 min-h-[38px] min-w-[38px] flex items-center justify-center"
-        title={t("Listen Description")}
-        aria-label={`${productName} ${t("Listen Description")}`}
-      >
-        <Volume2 className="w-4 h-4 text-slate-700" />
-      </button>
+        {/* Voice Read Button with Visible Text ("듣기") + Explicit WAI-ARIA Label */}
+        <button
+          onClick={handleVoiceRead}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-[#3182f6] transition-all border border-slate-200 shadow-2xs cursor-pointer active:scale-95 min-h-[32px]"
+          title={`${productName} 음성 설명 듣기`}
+          aria-label={`${productName} ${formattedPrice} 음성 설명 듣기`}
+        >
+          <Volume2 className="w-3.5 h-3.5 text-[#3182f6]" />
+          <span className="text-[11px] font-extrabold text-slate-700">듣기</span>
+        </button>
+      </div>
 
-      <div>
-        {/* Product Image */}
-        <div className="relative w-full h-28 sm:h-32 rounded-xl overflow-hidden mb-3 bg-slate-100 border border-slate-100">
-          <img
-            src={product.image}
-            alt={productName}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        </div>
+      {/* Product Image Box - Pure image block without any text overlay */}
+      <div className="relative w-full h-28 sm:h-32 rounded-xl overflow-hidden mb-3 bg-slate-100 border border-slate-200/60 flex items-center justify-center">
+        <img
+          src={product.image}
+          alt="" // Empty alt to prevent unstyled text overflow on top of image when loading or if image is broken
+          aria-hidden="true"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            // Hide broken image element to display fallback container cleanly
+            (e.currentTarget as HTMLElement).style.display = 'none';
+          }}
+        />
+      </div>
 
-        {/* Info - Clean, bold, minimal text without glance paragraph clutter */}
+      {/* Info - Clean Title Block */}
+      <div className="flex-1 flex flex-col justify-start">
         <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug group-hover:text-[#3182f6] transition-colors line-clamp-2">
           {productName}
         </h3>
       </div>
 
-      {/* Price & Large Add CTA Button */}
+      {/* Price & Large Action CTA Button (Primary Action Blue) */}
       <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-1.5">
         <span className="text-xs sm:text-sm font-black text-slate-950">
           {formattedPrice}
@@ -90,13 +106,13 @@ export function MenuCard({ product, onSelectProduct }: Props) {
             e.stopPropagation();
             handleCardClick();
           }}
-          className={`flex items-center justify-center gap-1 px-3.5 py-2 rounded-xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all cursor-pointer min-h-[44px] ${
+          className={`flex items-center justify-center gap-1 px-3.5 py-2.5 rounded-xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-extrabold text-xs shadow-xs active:scale-95 transition-all cursor-pointer min-h-[44px] ${
             lowReachMode ? 'min-h-[52px] px-4 text-sm' : ''
           }`}
-          aria-label={`${t("Add to Cart")}: ${productName}`}
+          aria-label={`${productName} ${formattedPrice} 장바구니에 담기`}
         >
           <Plus className="w-4 h-4 stroke-[3]" />
-          <span>{t("Add to Cart")}</span>
+          <span>담기</span>
         </button>
       </div>
     </motion.div>

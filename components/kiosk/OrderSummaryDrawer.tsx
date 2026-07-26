@@ -15,13 +15,11 @@ interface Props {
 }
 
 export function OrderSummaryDrawer({ onCheckout }: Props) {
-  const { items, updateQuantity, clearCart } = useCartStore();
+  const { items, updateQuantity, clearCart, isCartDrawerExpanded, toggleCartDrawer } = useCartStore();
   const { vibrate } = useHaptics();
   const { speak } = useSpeech();
   const { lowReachMode, highContrast } = useAccessibilityStore();
   const { t, language } = useTranslation();
-
-  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const totalItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.totalItemPrice * item.quantity, 0);
@@ -32,7 +30,7 @@ export function OrderSummaryDrawer({ onCheckout }: Props) {
 
   const handleToggleExpand = () => {
     vibrate(30);
-    setIsExpanded(!isExpanded);
+    toggleCartDrawer();
   };
 
   const handleCheckoutClick = () => {
@@ -70,18 +68,19 @@ export function OrderSummaryDrawer({ onCheckout }: Props) {
                 vibrate(30);
                 clearCart();
               }}
-              className="text-[10px] font-bold text-white/90 hover:text-white flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white/20 transition-colors cursor-pointer border-none"
+              className="text-[10px] font-bold text-white/90 hover:text-white flex items-center gap-0.5 px-2 py-1 rounded bg-white/20 transition-colors cursor-pointer border-none min-h-[32px]"
+              aria-label="장바구니 전체 비우기"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3.5 h-3.5" />
               <span>{t("Clear All")}</span>
             </button>
-            {isExpanded ? <ChevronDown className="w-4 h-4 text-white" /> : <ChevronUp className="w-4 h-4 text-white" />}
+            {isCartDrawerExpanded ? <ChevronDown className="w-4 h-4 text-white" /> : <ChevronUp className="w-4 h-4 text-white" />}
           </div>
         </div>
 
         {/* Item List */}
         <AnimatePresence>
-          {isExpanded && (
+          {isCartDrawerExpanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -115,19 +114,21 @@ export function OrderSummaryDrawer({ onCheckout }: Props) {
                           vibrate(20);
                           updateQuantity(item.cartItemId, -1);
                         }}
-                        className="p-1 rounded bg-white text-slate-800 transition-colors cursor-pointer border-none"
+                        className="p-1 rounded bg-white text-slate-800 transition-colors cursor-pointer border-none min-w-[32px] min-h-[32px] flex items-center justify-center"
+                        aria-label={`${itemName} 수량 1개 줄이기`}
                       >
-                        <Minus className="w-3 h-3" />
+                        <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="w-5 text-center font-bold text-slate-900 text-xs">{item.quantity}</span>
+                      <span className="w-6 text-center font-black text-slate-900 text-xs">{item.quantity}</span>
                       <button
                         onClick={() => {
                           vibrate(20);
                           updateQuantity(item.cartItemId, 1);
                         }}
-                        className="p-1 rounded bg-white text-slate-800 transition-colors cursor-pointer border-none"
+                        className="p-1 rounded bg-white text-slate-800 transition-colors cursor-pointer border-none min-w-[32px] min-h-[32px] flex items-center justify-center"
+                        aria-label={`${itemName} 수량 1개 늘리기`}
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -150,9 +151,10 @@ export function OrderSummaryDrawer({ onCheckout }: Props) {
 
           <button
             onClick={handleCheckoutClick}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer border-none ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl bg-[#3182f6] hover:bg-[#2b70d4] text-white font-extrabold text-xs shadow-md active:scale-95 transition-all cursor-pointer border-none min-h-[48px] ${
               lowReachMode ? 'min-h-[64px] text-sm' : ''
             }`}
+            aria-label={`총 ${totalItemCount}개 항목, 합계 ${formatPrice(totalPrice)}. 결제 및 주문하기`}
           >
             <CreditCard className="w-4 h-4 fill-current" />
             <span>{t("Checkout & Order")}</span>

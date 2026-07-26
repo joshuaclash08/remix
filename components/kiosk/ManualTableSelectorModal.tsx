@@ -40,7 +40,7 @@ export function ManualTableSelectorModal({ isOpen, onClose, onConfirmTable }: Pr
               <h3 className="text-sm font-black text-slate-900">{t("Select Table Number")}</h3>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer border-none"
+                className="p-2 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer border-none flex items-center justify-center min-h-[36px] min-w-[36px]"
                 aria-label={t("Close")}
               >
                 <X className="w-4 h-4" />
