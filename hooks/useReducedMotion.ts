@@ -12,20 +12,30 @@ export function useReducedMotion() {
   const setReduceMotion = useAccessibilityStore((state) => state.setReduceMotion);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    try {
+      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    if (mediaQuery.matches && !reduceMotion) {
-      setReduceMotion(true);
+      if (mediaQuery.matches && !reduceMotion) {
+        setReduceMotion(true);
+      }
+
+      const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+        setReduceMotion(e.matches);
+      };
+
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+      } else if ('addListener' in mediaQuery) {
+        // Fallback for older Safari / Mobile WebViews
+        (mediaQuery as unknown as { addListener: (fn: (e: MediaQueryList) => void) => void }).addListener(handleChange);
+        return () => (mediaQuery as unknown as { removeListener: (fn: (e: MediaQueryList) => void) => void }).removeListener(handleChange);
+      }
+    } catch (e) {
+      console.warn('useReducedMotion mediaQuery error:', e);
     }
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setReduceMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [reduceMotion, setReduceMotion]);
 
   return reduceMotion;

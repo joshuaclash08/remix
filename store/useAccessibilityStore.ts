@@ -6,16 +6,25 @@ export type A11yPreset = 'default' | 'visual' | 'hearing' | 'mobility' | 'cognit
 // Cookie Utility functions
 export function setCookie(name: string, value: string, maxAgeSeconds: number) {
   if (typeof document !== 'undefined') {
-    document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAgeSeconds}; path=/`;
+    try {
+      document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAgeSeconds}; path=/`;
+    } catch (e) {
+      console.warn('Failed to set cookie', e);
+    }
   }
 }
 
 export function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
-  const matches = document.cookie.match(new RegExp(
-    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-  ));
-  return matches ? decodeURIComponent(matches[1]) : null;
+  try {
+    const matches = document.cookie.match(new RegExp(
+      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : null;
+  } catch (e) {
+    console.warn('Failed to get cookie', e);
+    return null;
+  }
 }
 
 interface AccessibilityState {

@@ -21,27 +21,32 @@ export function useSpeech() {
       if (!ttsEnabled && !force) return;
       if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
+      try {
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
 
-      utterance.onstart = () => {
-        setSpeakingText(text);
-      };
+        utterance.onstart = () => {
+          setSpeakingText(text);
+        };
 
-      utterance.onend = () => {
+        utterance.onend = () => {
+          setSpeakingText(null);
+        };
+
+        utterance.onerror = () => {
+          setSpeakingText(null);
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.warn('SpeechSynthesis error:', e);
         setSpeakingText(null);
-      };
-
-      utterance.onerror = () => {
-        setSpeakingText(null);
-      };
-
-      window.speechSynthesis.speak(utterance);
+      }
     },
     [ttsEnabled]
   );
