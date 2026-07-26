@@ -16,6 +16,14 @@ export function LoadingScreen({ onLoadingComplete }: Props) {
   const { setLanguage, reduceMotion } = useAccessibilityStore();
   const { vibrate } = useHaptics();
   const [selected, setSelected] = useState(false);
+  const completedRef = useRef(false);
+
+  const safeComplete = () => {
+    if (!completedRef.current) {
+      completedRef.current = true;
+      onLoadingComplete();
+    }
+  };
 
   const handleLanguageSelect = (lang: 'ko' | 'en') => {
     if (selected) return;
@@ -23,30 +31,47 @@ export function LoadingScreen({ onLoadingComplete }: Props) {
     vibrate(40);
     setLanguage(lang);
 
+    // Failsafe timeout: Guarantee step completion after 800ms regardless of GSAP status
+    const fallbackTimer = setTimeout(() => {
+      safeComplete();
+    }, 800);
+
     const duration = reduceMotion ? 0.05 : 0.3;
 
-    if (progressRef.current) {
-      gsap.to(progressRef.current, {
-        width: '100%',
-        duration: duration,
-        ease: 'power1.inOut',
-        onComplete: () => {
-          if (reduceMotion) {
-            onLoadingComplete();
-          } else if (overlayRef.current) {
-            gsap.to(overlayRef.current, {
-              yPercent: -100,
-              duration: 0.5,
-              ease: 'power3.inOut',
-              onComplete: () => {
-                onLoadingComplete();
-              },
-            });
-          }
-        },
-      });
-    } else {
-      onLoadingComplete();
+    try {
+      if (progressRef.current) {
+        gsap.to(progressRef.current, {
+          width: '100%',
+          duration: duration,
+          ease: 'power1.inOut',
+          onComplete: () => {
+            if (reduceMotion) {
+              clearTimeout(fallbackTimer);
+              safeComplete();
+            } else if (overlayRef.current) {
+              gsap.to(overlayRef.current, {
+                yPercent: -100,
+                duration: 0.4,
+                ease: 'power3.inOut',
+                onComplete: () => {
+                  clearTimeout(fallbackTimer);
+                  safeComplete();
+                },
+              });
+            } else {
+              clearTimeout(fallbackTimer);
+              safeComplete();
+            }
+          },
+        });
+      } else {
+        clearTimeout(fallbackTimer);
+        safeComplete();
+      }
+    } catch (e) {
+      console.error('GSAP LoadingScreen animation error:', e);
+      clearTimeout(fallbackTimer);
+      safeComplete();
     }
   };
 
