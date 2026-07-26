@@ -6,6 +6,7 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { MainDisabilityCategory } from './Step2DisabilityType';
 import { Eye, ZoomIn, Palette, Moon, Hand, Keyboard, Touchpad, Accessibility, User, Sparkles, BookOpen, VolumeX } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Props {
   mainCategory: MainDisabilityCategory;
@@ -16,9 +17,10 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
   const { 
     setPreset, setHighContrast, setFontScale, setLowReachMode,
     setDyslexiaMode, setDebounceMode, setDarkMode, setSwitchAccessMode,
-    setColorBlindMode, setEasyMode
+    setColorBlindMode, setEasyMode, setProfileId
   } = useAccessibilityStore();
   const { vibrate } = useHaptics();
+  const { t, language } = useTranslation();
 
   const SUB_OPTIONS: Record<
     MainDisabilityCategory,
@@ -31,37 +33,41 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
   > = {
     visual: [
       {
-        title: '전맹',
-        desc: '음성 스크린리더 모드',
+        title: t('Blindness'),
+        desc: t('Voice Screen Reader Mode'),
         icon: <Eye className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('visual_blindness');
           setPreset('visual');
         },
       },
       {
-        title: '저시력',
-        desc: '글씨 200% 확대 및 고대비',
+        title: t('Low Vision'),
+        desc: t('200% Text Zoom & High Contrast'),
         icon: <ZoomIn className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('visual_low_vision');
           setPreset('visual');
           setHighContrast(true);
           setFontScale('xlarge');
         },
       },
       {
-        title: '색각 이상',
-        desc: '형태/패턴 이중 기호화',
+        title: t('Color Blindness'),
+        desc: t('Shape/Pattern Dual Coding'),
         icon: <Palette className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('visual_color_blind');
           setPreset('visual');
           setColorBlindMode(true);
         },
       },
       {
-        title: '눈부심 / 광과민',
-        desc: '다크모드 강제 전환',
+        title: t('Photophobia / Light Sensitivity'),
+        desc: t('Force Dark Mode'),
         icon: <Moon className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('visual_photophobia');
           setPreset('visual');
           setDarkMode(true);
         },
@@ -69,37 +75,41 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
     ],
     mobility: [
       {
-        title: '손떨림 / 수전증',
-        desc: '터치 오작동 방지 (디바운스)',
+        title: t('Hand Tremor'),
+        desc: t('Touch Misclick Prevention (Debounce)'),
         icon: <Hand className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('mobility_tremor');
           setPreset('mobility');
           setDebounceMode(true);
         },
       },
       {
-        title: '상지 마비 / 스위치 제어',
-        desc: '키보드 및 스위치 포커스 모드',
+        title: t('Upper Limb Paralysis / Switch Control'),
+        desc: t('Keyboard & Switch Focus Mode'),
         icon: <Keyboard className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('mobility_switch');
           setPreset('mobility');
           setSwitchAccessMode(true);
         },
       },
       {
-        title: '근무력 / 정밀 조작 불가',
-        desc: '거대 버튼 및 단일 탭',
+        title: t('Muscle Weakness / No Fine Control'),
+        desc: t('Giant Buttons & Single Tab'),
         icon: <Touchpad className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('mobility_weakness');
           setPreset('mobility');
-          setFontScale('xlarge'); // Makes buttons effectively larger
+          setFontScale('xlarge');
         },
       },
       {
-        title: '하지 지체 / 휠체어',
-        desc: '화면 하단 조작부 집중',
+        title: t('Lower Limb Disability / Wheelchair'),
+        desc: t('Focus Controls on Bottom of Screen'),
         icon: <Accessibility className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('mobility_wheelchair');
           setPreset('mobility');
           setLowReachMode(true);
         },
@@ -107,29 +117,32 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
     ],
     cognitive: [
       {
-        title: '발달 / 지적 장애',
-        desc: '쉬운 단어와 그림 중심',
+        title: t('Intellectual Disability'),
+        desc: t('Simple Words & Pictures'),
         icon: <Sparkles className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('cognitive_intellectual');
           setPreset('cognitive');
           setEasyMode(true);
         },
       },
       {
-        title: '고령층 / 디지털 미숙',
-        desc: '큰 글씨 및 시간제한 없음',
+        title: t('Elderly / Digitally Inexperienced'),
+        desc: t('Large Text & No Time Limit'),
         icon: <User className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('cognitive_elderly');
           setPreset('cognitive');
           setFontScale('large');
           setEasyMode(true);
         },
       },
       {
-        title: '난독증',
-        desc: '글자/줄 간격 확장',
+        title: t('Dyslexia'),
+        desc: t('Expanded Letter & Line Spacing'),
         icon: <BookOpen className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('cognitive_dyslexia');
           setPreset('cognitive');
           setDyslexiaMode(true);
         },
@@ -137,12 +150,12 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
     ],
     hearing: [
       {
-        title: '농아 / 난청',
-        desc: '안내를 시각/진동 팝업으로 대체',
+        title: t('Deaf / Hard of Hearing'),
+        desc: t('Replace Guidance with Visual & Vibration Popup'),
         icon: <VolumeX className="w-12 h-12 shrink-0" />,
         configureFn: () => {
+          setProfileId('hearing');
           setPreset('hearing');
-          // hapticFeedback is already true by default in 'hearing' preset
         },
       },
     ],
@@ -171,7 +184,7 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
       transition={{ type: 'spring', stiffness: 500, damping: 24 }}
       className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-8 pb-28 bg-slate-50 text-slate-950 select-none overflow-y-auto phone-scroll absolute inset-0"
       role="region"
-      aria-label="세부 장애 디테일 선택 화면"
+      aria-label={t("Detailed Disability Selection Screen")}
     >
       <div className="w-full h-full flex-1 flex flex-col justify-between gap-4 max-w-md mx-auto">
         {options.map((opt, idx) => (
@@ -181,7 +194,7 @@ export function Step2SubDisability({ mainCategory, onSelectSubComplete }: Props)
             key={idx}
             onClick={() => handleSubSelect(opt.configureFn)}
             className="w-full flex-1 px-5 rounded-[28px] bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row items-center justify-center text-center gap-4 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.03)] focus:outline-none focus:ring-[4px] focus:ring-slate-200/50"
-            aria-label={`${opt.title} 맞춤 선택`}
+            aria-label={language === 'ko' ? `${opt.title} 맞춤 선택` : `Select ${opt.title}`}
           >
             <div className="text-slate-700 shrink-0">{opt.icon}</div>
             <div className="flex flex-col items-center sm:items-start text-center sm:text-left">

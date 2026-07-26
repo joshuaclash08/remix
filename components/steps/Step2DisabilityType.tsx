@@ -4,6 +4,7 @@ import React from 'react';
 import { useHaptics } from '@/hooks/useHaptics';
 import { Eye, Brain, Accessibility, VolumeX } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export type MainDisabilityCategory = 'visual' | 'cognitive' | 'mobility' | 'hearing';
 
@@ -13,6 +14,7 @@ interface Props {
 
 export function Step2DisabilityType({ onSelectMainCategory }: Props) {
   const { vibrate } = useHaptics();
+  const { t } = useTranslation();
 
   // User-requested order: 시각 장애 ➔ 난독증 / 고령자 ➔ 지체 장애 ➔ 청각 장애
   const DISABILITY_TYPES: {
@@ -23,27 +25,27 @@ export function Step2DisabilityType({ onSelectMainCategory }: Props) {
   }[] = [
     {
       id: 'visual',
-      title: '시각 장애',
+      title: t('Visual Impairment'),
       icon: <Eye className="w-14 h-14 shrink-0" />,
-      ariaLabel: '시각 장애 지원 세부 선택으로 이동',
+      ariaLabel: t('Go to details for visual impairment'),
     },
     {
       id: 'cognitive',
-      title: '난독증 / 고령자',
+      title: t('Dyslexia / Elderly'),
       icon: <Brain className="w-14 h-14 shrink-0" />,
-      ariaLabel: '난독증 및 고령자 지원 세부 선택으로 이동',
+      ariaLabel: t('Go to details for dyslexia and elderly support'),
     },
     {
       id: 'mobility',
-      title: '지체 장애',
+      title: t('Physical Disability'),
       icon: <Accessibility className="w-14 h-14 shrink-0" />,
-      ariaLabel: '지체 장애 지원 세부 선택으로 이동',
+      ariaLabel: t('Go to details for physical disability support'),
     },
     {
       id: 'hearing',
-      title: '청각 장애',
+      title: t('Hearing Impairment'),
       icon: <VolumeX className="w-14 h-14 shrink-0" />,
-      ariaLabel: '청각 장애 지원 바로가기',
+      ariaLabel: t('Go to details for hearing impairment support'),
     },
   ];
 
@@ -67,7 +69,7 @@ export function Step2DisabilityType({ onSelectMainCategory }: Props) {
       transition={{ type: 'spring', stiffness: 500, damping: 24 }}
       className="flex-1 w-full h-full flex flex-col justify-between items-center p-5 pt-8 pb-28 bg-slate-50 text-slate-950 select-none overflow-hidden absolute inset-0"
       role="region"
-      aria-label="메인 접근성 유형 선택 화면"
+      aria-label={t("Main Accessibility Type Selection Screen")}
     >
       {/* 4 buttons expanding (flex-1) to fill vertical height completely */}
       <div className="w-full h-full flex-1 flex flex-col justify-between gap-4 max-w-md mx-auto">

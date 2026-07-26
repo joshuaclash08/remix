@@ -2,29 +2,48 @@
 
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useAccessibilityStore } from '@/store/useAccessibilityStore';
+import { useAccessibilityStore, getCookie } from '@/store/useAccessibilityStore';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { MobileDeviceContainer } from '@/components/layout/MobileDeviceContainer';
 import { LoadingScreen } from '@/components/steps/LoadingScreen';
 import { Step1DisabilitySelect } from '@/components/steps/Step1DisabilitySelect';
 import { Step2DisabilityType, MainDisabilityCategory } from '@/components/steps/Step2DisabilityType';
 import { Step2SubDisability } from '@/components/steps/Step2SubDisability';
+import { CustomizationPanel } from '@/components/steps/CustomizationPanel';
 import { SimpleKiosk } from '@/components/kiosk/SimpleKiosk';
 import { ArrowLeft } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function KioskApp() {
-  const { highContrast, fontScale, resetAll, dyslexiaMode, darkMode, colorBlindMode, setPreset } = useAccessibilityStore();
+  const { 
+    highContrast, fontScale, resetAll, dyslexiaMode, darkMode, colorBlindMode, 
+    setPreset, fontMultiplier, setProfileId, setHighContrast, setFontScale, 
+    setColorBlindMode, setDarkMode, setDebounceMode, setSwitchAccessMode, 
+    setLowReachMode, setEasyMode, setDyslexiaMode, loadSettingsFromCookie
+  } = useAccessibilityStore();
   const { vibrate } = useHaptics();
+  const { t } = useTranslation();
   useReducedMotion();
 
-  // Navigation Steps: 'loading' | 'step1' | 'step2_main' | 'step2_sub' | 'kiosk'
-  const [currentStep, setCurrentStep] = useState<'loading' | 'step1' | 'step2_main' | 'step2_sub' | 'kiosk'>('loading');
+  // Navigation Steps: 'loading' | 'step1' | 'step2_main' | 'step2_sub' | 'customization' | 'kiosk'
+  const [currentStep, setCurrentStep] = useState<'loading' | 'step1' | 'step2_main' | 'step2_sub' | 'customization' | 'kiosk'>('loading');
   const [selectedMainCategory, setSelectedMainCategory] = useState<MainDisabilityCategory>('visual');
 
-  // Sync HTML Root Classes for High Contrast, Font Scale, Dyslexia & Dark Modes
+  // Check for Cookie Persistence on Mount
+  useEffect(() => {
+    const loaded = loadSettingsFromCookie();
+    if (loaded) {
+      setCurrentStep('kiosk');
+    }
+  }, []);
+
+  // Sync HTML Root Classes for High Contrast, Font Scale, Dyslexia, Dark Modes & Font Multiplier
   useEffect(() => {
     const htmlEl = document.documentElement;
+
+    // Apply dynamic CSS Font multiplier variable
+    htmlEl.style.setProperty('--font-multiplier', fontMultiplier.toString());
 
     if (highContrast) {
       htmlEl.classList.add('high-contrast');
@@ -49,14 +68,16 @@ export default function KioskApp() {
     } else {
       htmlEl.classList.remove('color-blind-mode');
     }
-
-    htmlEl.classList.remove('font-large', 'font-xlarge');
-    if (fontScale === 'large') htmlEl.classList.add('font-large');
-    if (fontScale === 'xlarge') htmlEl.classList.add('font-xlarge');
-  }, [highContrast, fontScale, dyslexiaMode, darkMode, colorBlindMode]);
+  }, [highContrast, fontScale, dyslexiaMode, darkMode, colorBlindMode, fontMultiplier]);
 
   const handleHeaderBack = () => {
-    if (currentStep === 'step2_sub') {
+    if (currentStep === 'customization') {
+      if (selectedMainCategory === 'hearing') {
+        setCurrentStep('step2_main');
+      } else {
+        setCurrentStep('step2_sub');
+      }
+    } else if (currentStep === 'step2_sub') {
       setCurrentStep('step2_main');
     } else if (currentStep === 'step2_main') {
       setCurrentStep('step1');
@@ -66,7 +87,7 @@ export default function KioskApp() {
     }
   };
 
-  const showBack = currentStep !== 'step1' && currentStep !== 'loading';
+  const showBack = currentStep !== 'step1' && currentStep !== 'loading' && currentStep !== 'customization';
 
   return (
     <MobileDeviceContainer>
@@ -91,8 +112,9 @@ export default function KioskApp() {
                 onSelectMainCategory={(cat) => {
                   setSelectedMainCategory(cat);
                   if (cat === 'hearing') {
+                    setProfileId('hearing');
                     setPreset('hearing');
-                    setCurrentStep('kiosk');
+                    setCurrentStep('customization');
                   } else {
                     setCurrentStep('step2_sub');
                   }
@@ -105,7 +127,32 @@ export default function KioskApp() {
               <Step2SubDisability
                 key="step2_sub"
                 mainCategory={selectedMainCategory}
-                onSelectSubComplete={() => setCurrentStep('kiosk')}
+                onSelectSubComplete={() => {
+                  const currentProfileId = useAccessibilityStore.getState().profileId;
+                  const noParams = ['mobility_switch', 'mobility_wheelchair'];
+                  const hasParams = !noParams.includes(currentProfileId || '');
+                  if (hasParams) {
+                    setCurrentStep('customization');
+                  } else {
+                    useAccessibilityStore.getState().saveSettingsToCookie();
+                    setCurrentStep('kiosk');
+                  }
+                }}
+              />
+            )}
+
+            {/* Step 2.5: Customization & Fine-Tuning */}
+            {currentStep === 'customization' && (
+              <CustomizationPanel
+                key="customization"
+                onComplete={() => setCurrentStep('kiosk')}
+                onBack={() => {
+                  if (selectedMainCategory === 'hearing') {
+                    setCurrentStep('step2_main');
+                  } else {
+                    setCurrentStep('step2_sub');
+                  }
+                }}
               />
             )}
 
@@ -134,10 +181,10 @@ export default function KioskApp() {
                   handleHeaderBack();
                 }}
                 className="px-6 py-4 rounded-full bg-slate-900/90 text-white backdrop-blur-lg border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.25)] hover:bg-slate-800 transition-all flex items-center gap-2 cursor-pointer"
-                aria-label="이전 화면으로 돌아가기"
+                aria-label={t("Go back to the previous screen")}
               >
                 <ArrowLeft className="w-6 h-6 stroke-[2.5]" />
-                <span className="text-lg font-bold tracking-tight">이전</span>
+                <span className="text-lg font-bold tracking-tight">{t("Back")}</span>
               </motion.button>
             </motion.div>
           )}

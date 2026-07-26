@@ -10,7 +10,7 @@ interface Props extends HTMLMotionProps<"button"> {
 }
 
 export function DebounceButton({ children, onDebouncedClick, className, ...rest }: Props) {
-  const { debounceMode } = useAccessibilityStore();
+  const { debounceMode, debounceDuration } = useAccessibilityStore();
   const [isDebouncing, setIsDebouncing] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -22,7 +22,7 @@ export function DebounceButton({ children, onDebouncedClick, className, ...rest 
         return;
       }
 
-      // If debounce mode is ON (Tremors / 수전증), block multiple clicks for 500ms
+      // If debounce mode is ON (Tremors / 수전증), block multiple clicks for specified duration
       if (isDebouncing) {
         e.preventDefault();
         e.stopPropagation();
@@ -34,9 +34,9 @@ export function DebounceButton({ children, onDebouncedClick, className, ...rest 
 
       timeoutRef.current = setTimeout(() => {
         setIsDebouncing(false);
-      }, 500); // 500ms debounce delay as per specifications
+      }, debounceDuration); 
     },
-    [debounceMode, isDebouncing, onDebouncedClick]
+    [debounceMode, isDebouncing, onDebouncedClick, debounceDuration]
   );
 
   // Cleanup timeout on unmount

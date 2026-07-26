@@ -49,12 +49,8 @@
   }
 
   /* Font Scale Modifiers */
-  html.font-large {
-    font-size: 115%;
-  }
-
-  html.font-xlarge {
-    font-size: 130%;
+  html {
+    font-size: calc(100% * var(--font-multiplier, 1)) !important;
   }
 
   body {
